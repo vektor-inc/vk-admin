@@ -10,23 +10,23 @@
 
 namespace VektorInc\VK_Admin;
 
-class VkAdmin {
+class VK_Admin {
 
 	public static $version = '2.6.0';
 
-	static function init() {
+	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
 	}
 
-	static function admin_common_css() {
+	public static function admin_common_css() {
 		$current_path = dirname( __FILE__ );
 		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
 		wp_enqueue_style( 'vk-admin-style', $current_url . '/assets/css/vk_admin.css', array(), self::$version, 'all' );
 	}
 
-	static function admin_enqueue_scripts() {
+	public static function admin_enqueue_scripts() {
 		$current_path = dirname( __FILE__ );
 		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
 		wp_enqueue_script( 'jquery' );
@@ -462,9 +462,6 @@ class VkAdmin {
 
 		</div><!-- [ /.vkExUnit_admin_page ] -->
 		<?php
-	}
-
-	public function __construct() {
 	}
 }
 
