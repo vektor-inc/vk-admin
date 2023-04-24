@@ -13,8 +13,25 @@
 			"email": "kurudrive@gmail.com"
 		}
 	],
+	"scripts": {
+		"format": "phpcbf --standard=./.phpcs.xml --report-summary --report-source",
+		"lint": "phpcs --standard=./.phpcs.xml",
+		"phpcs": "phpcs --standard=./.phpcs.xml"
+	},
 	"require-dev": {
+		"doctrine/instantiator":"1.5.0",
+		"squizlabs/php_codesniffer": "*",
+		"sirbrillig/phpcs-variable-analysis": "^2.8",
 		"wp-phpunit/wp-phpunit": "^5.4",
-		"yoast/phpunit-polyfills": "^1.0"
+		"dealerdirect/phpcodesniffer-composer-installer": "*",
+		"phpcompatibility/phpcompatibility-wp": "*",
+		"wp-coding-standards/wpcs": "*",
+		"yoast/phpunit-polyfills": "^1.0",
+		"vektor-inc/vk-wp-unit-test-tools": "^0.10.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }

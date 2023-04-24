@@ -22,13 +22,13 @@ class VkAdmin {
 
 	static function admin_common_css() {
 		$current_path = dirname( __FILE__ );
-		$current_url  = str_replace( ABSPATH, site_url('/'), $current_path );
+		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
 		wp_enqueue_style( 'vk-admin-style', $current_url . '/assets/css/vk_admin.css', array(), self::$version, 'all' );
 	}
 
 	static function admin_enqueue_scripts() {
 		$current_path = dirname( __FILE__ );
-		$current_url  = str_replace( ABSPATH, site_url('/'), $current_path );
+		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_media();
 		wp_enqueue_script( 'vk-admin-js', $current_url . '/assets/js/vk_admin.js', array( 'jquery' ), self::$version );
@@ -74,7 +74,6 @@ class VkAdmin {
 	get_admin_banner
 	/*--------------------------------------------------*/
 	public static function get_admin_banner() {
-
 		$banner_html = '';
 		$dir_url     = plugin_dir_url( __FILE__ );
 		$lang        = ( get_locale() == 'ja' ) ? 'ja' : 'en';
@@ -95,7 +94,6 @@ class VkAdmin {
 			$product_json     = $wp_filesystem->get_contents( $product_json_url );
 			$product_json     = mb_convert_encoding( $product_json, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN' );
 			$product_array    = json_decode( $product_json, true );
-
 		}
 
 		// 現在のテーマを取得
@@ -118,12 +116,11 @@ class VkAdmin {
 			// テーマのバナーを設置
 			foreach ( $product_array as $product ) {
 
-				
 				// 該当テーマがアクティブでなければスキップ
 				if ( ! empty( $product['active_theme'] ) && $current_template !== $product['active_theme'] ) {
 					continue;
 				}
-				
+
 				// include パラメーターが存在する場合
 				if ( ! empty( $product['include'] ) ) {
 					// include パラメーターをカンマで区切って配列化
@@ -155,7 +152,6 @@ class VkAdmin {
 							$banner_html .= '<a href="' . $product_url . '" target="_blank" class="admin_banner">';
 							$banner_html .= '<img src="' . $img_base_url . $product['image_file'] . '" alt="' . $product['alt'] . '" />';
 							$banner_html .= '</a>';
-
 						}
 					}
 				}
@@ -171,7 +167,6 @@ class VkAdmin {
 							$banner_html .= '<a href="' . $product_url . '" target="_blank" class="admin_banner">';
 							$banner_html .= '<img src="' . $img_base_url . $product['image_file'] . '" alt="' . $product['alt'] . '" />';
 							$banner_html .= '</a>';
-
 						}
 					}
 				}
@@ -205,7 +200,6 @@ class VkAdmin {
 	/*--------------------------------------------------*/
 
 	public static function get_news_from_rest_api() {
-
 		$html  = '<h4 class="vk-metabox-sub-title">';
 		$html .= 'Vektor製品更新情報';
 		$html .= '<a href="https://www.vektor-inc.co.jp/product-update/?rel=vkadmin" target="_blank" class="vk-metabox-more-link">記事一覧<span aria-hidden="true" class="dashicons dashicons-external"></span></a>';
@@ -309,7 +303,6 @@ class VkAdmin {
 	/*  RSS方針で現在は日本語以外でのみ使用
 	/*--------------------------------------------------*/
 	public static function get_news_from_rss() {
-
 		$output = '';
 
 		include_once ABSPATH . WPINC . '/feed.php';
@@ -389,7 +382,6 @@ class VkAdmin {
 	admin _ Dashboard Widget
 	/*--------------------------------------------------*/
 	public static function dashboard_widget() {
-
 		if ( self::is_dashboard_active() ) {
 			wp_add_dashboard_widget(
 				'vk_dashboard_widget',
@@ -415,7 +407,7 @@ class VkAdmin {
 		if ( ! $display ) {
 			return;
 		}
-		$adminSub = '<div class="adminSub">' . "\n";
+		$adminSub  = '<div class="adminSub">' . "\n";
 		$adminSub .= '<div class="adminSub_inner">' . "\n";
 		if ( 'ja' == get_locale() ) {
 			$adminSub .= '<div class="infoBox">' . self::get_news_body() . '</div>' . "\n";
@@ -473,7 +465,6 @@ class VkAdmin {
 	}
 
 	public function __construct() {
-
 	}
 }
 
