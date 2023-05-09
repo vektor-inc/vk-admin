@@ -10,7 +10,7 @@
 
 namespace VektorInc\VK_Admin;
 
-class VK_Admin {
+class VKAdmin {
 
 	public static $version = '2.6.0';
 
