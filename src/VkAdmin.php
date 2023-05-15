@@ -14,7 +14,7 @@ class VkAdmin {
 
 	public static $version = '2.6.0';
 
-	public function init() {
+	public static function init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
