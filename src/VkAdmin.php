@@ -14,7 +14,7 @@ class VkAdmin {
 
 	public static $version = '2.6.0';
 
-	public function __construct() {
+	public function init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
@@ -36,7 +36,7 @@ class VkAdmin {
 
 	// 管理画面用のjsを読み込むページを配列で指定する
 	// $admin_pages は vk-admin-config.php に記載
-	static function admin_scripts( $admin_pages ) {
+	public static function admin_scripts( $admin_pages ) {
 		foreach ( $admin_pages as $key => $value ) {
 			$hook = 'admin_print_styles-' . $value;
 			add_action( $hook, array( __CLASS__, 'admin_enqueue_scripts' ) );
