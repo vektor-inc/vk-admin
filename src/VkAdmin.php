@@ -15,7 +15,8 @@ class VkAdmin {
 	public static $version = '2.6.0';
 
 	public static function init() {
-		load_plugin_textdomain( 'vk-admin', false, dirname( __FILE__ ) . '/languages/' );
+		$locale = ( is_admin() && function_exists('get_user_locale') ) ? get_user_locale() : get_locale();
+		load_textdomain( 'vk-admin', dirname( __FILE__ ) . '/languages/' . 'vk-admin-' . $locale. '.mo' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
