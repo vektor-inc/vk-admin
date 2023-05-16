@@ -15,6 +15,7 @@ class VkAdmin {
 	public static $version = '2.6.0';
 
 	public static function init() {
+		load_plugin_textdomain( 'vk-admin', false, dirname( __FILE__ ) . '/languages/' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
@@ -332,7 +333,7 @@ class VkAdmin {
 
 				if ( $maxitems == 0 ) {
 					$output .= '<li>';
-					$output .= __( 'Sorry, there is no post', 'vk_admin_textdomain' );
+					$output .= __( 'Sorry, there is no post.', 'vk_admin_textdomain' );
 					$output .= '</li>';
 				} else {
 					foreach ( $rss_items as $item ) {
