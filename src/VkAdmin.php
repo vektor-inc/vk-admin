@@ -5,7 +5,7 @@
  * @package vektor-inc/vk-admin
  * @license GPL-2.0+
  *
- * @version 0.7.0
+ * @version 2.7.0
  */
 
 namespace VektorInc\VK_Admin;
