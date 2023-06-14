@@ -28,6 +28,6 @@ new VK_Admin();
 
 ## Change log
 
-== 2.7.0 ==
+== 0.4.0 ==
 [ Other ] Cope with English news
 [ Bug Fix ] Fix Widget Edit UI
