@@ -5,14 +5,14 @@
  * @package vektor-inc/vk-admin
  * @license GPL-2.0+
  *
- * @version 0.1.0
+ * @version 2.7.0
  */
 
 namespace VektorInc\VK_Admin;
 
 class VkAdmin {
 
-	public static $version = '2.6.0';
+	public static $version = '2.7.0';
 
 	public static function init() {
 		$locale = ( is_admin() && function_exists('get_user_locale') ) ? get_user_locale() : get_locale();
@@ -20,6 +20,13 @@ class VkAdmin {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'add_widget_screen_css' ) );
+	}
+
+	public static function add_widget_screen_css() {
+		$current_path = dirname( __FILE__ );
+		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
+		wp_enqueue_style( 'vk-admin-style', $current_url . '/assets/css/customize-and-widget.css', array(), self::$version, 'all' );
 	}
 
 	public static function admin_common_css() {
