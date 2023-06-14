@@ -228,15 +228,15 @@ class VkAdmin {
 			);
 		} else {
 			// English --------------------------------------
-			$html .= self::get_news_posttype_html( 
-				'Vektor WordPress Information', 
-				'https://vektor-inc.co.jp/en/information/?rel=vkadmin', 
-				'vk-wp-info'
-			);
 			$html  .= self::get_news_posttype_html( 
 				'Update Information', 
 				'https://vektor-inc.co.jp/en/update/?rel=vkadmin', 
 				'vk-wp-update'
+			);
+			$html .= self::get_news_posttype_html( 
+				'Vektor WordPress Information', 
+				'https://vektor-inc.co.jp/en/information/?rel=vkadmin', 
+				'vk-wp-info'
 			);
 		}
 
