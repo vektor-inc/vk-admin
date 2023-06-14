@@ -1,12 +1,16 @@
 /*-------------------------------------------*/
 /* カスタマイズパネル & Widget css
 /*-------------------------------------------*/
-/*
-.admin_widget_ は pr-content ウィジェットなどで利用されているので、
-アップデートが浸透するまで消さない
-2019.5 以降削除
- */
- .widget-content {
+
+ .wp-block-legacy-widget__edit-form-title {
+	padding:15px;
+	border:none;
+	background-color: #e5e5e5;
+	&::after {
+		border:none;
+	}
+}
+ :is( .widget-content, .widget-inside ){
 	h3,h4,h5,h6 {
 		margin-top:1rem;
 	}
@@ -22,7 +26,7 @@
 		}
 		li {
 			margin-top:0;
-			margin-bottom:0;
+			margin-bottom:5px;
 			list-style: none;
 		}
 	}
@@ -32,7 +36,6 @@
 		margin-bottom:5px;
 	}
  }
- .admin_widget_section,
  .admin-custom-section {
 	 display: block;
 	 overflow: hidden;
@@ -42,8 +45,6 @@
 		 margin-top: 0.5em;
 	 }
  }
- 
- .admin_widget_h2,
  .admin-custom-h2 {
 	 box-sizing: border-box;
 	 margin: 1em 0 1em;
@@ -55,8 +56,6 @@
 	 color: #fff;
 	 font-size: 1.1em;
  }
- 
- .admin_widget_h3,
  .admin-custom-h3 {
 	&,
 	& label {
@@ -66,9 +65,8 @@
 		margin-bottom: 10px;
 		width: 100%;
 		border-bottom: solid 1px #ddd;
-		// background: #EDEDED;
 		font-weight:normal;
-		font-size: 16px;
+		font-size: 14px;
 	}
 	label {
 		border:none;
@@ -101,7 +99,6 @@
  input[type="number"],
  select,
  textarea {
- 
 	 &.admin_widget_input,
 	 &.admin-custom-input {
 		 width: 100%;
