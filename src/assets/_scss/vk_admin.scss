@@ -89,6 +89,11 @@ body {
 	border-bottom: 1px solid #e5e5e5;
 	margin-top: 1em;
 	padding-bottom: 0.3em;
+	a {
+		text-decoration: none;
+		display: flex;
+		align-items: center
+	}
 
 	.dashicons {
 		position: relative;
