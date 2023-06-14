@@ -15,8 +15,8 @@ class VkAdmin {
 	public static $version = '2.7.0';
 
 	public static function init() {
-		$locale = ( is_admin() && function_exists('get_user_locale') ) ? get_user_locale() : get_locale();
-		load_textdomain( 'vk-admin', dirname( __FILE__ ) . '/languages/' . 'vk-admin-' . $locale. '.mo' );
+		$locale = ( is_admin() && function_exists( 'get_user_locale' ) ) ? get_user_locale() : get_locale();
+		load_textdomain( 'vk-admin', dirname( __FILE__ ) . '/languages/' . 'vk-admin-' . $locale . '.mo' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
@@ -72,8 +72,7 @@ class VkAdmin {
 
 	/*
 	get_admin_banner
-	get_news_body_api
-	get_news_from_rss
+	get_news_body
 	admin _ Dashboard Widget
 	admin _ sub
 	admin _ page_frame
@@ -191,47 +190,55 @@ class VkAdmin {
 		return apply_filters( 'vk_admin_banner_html', $banner_html );
 	}
 
+	public static function get_news_posttype_html( $title, $link_url, $target_id ) {
+		$html  = '<h4 class="vk-metabox-sub-title">';
+		$html .= esc_html( $title );
+		$html .= '<a href="' . esc_url( $link_url ) . '" target="_blank" class="vk-metabox-more-link">' . __( 'Post List', 'vk_admin_textdomain' ) . '<span aria-hidden="true" class="dashicons dashicons-external"></span></a>';
+		$html .= '</h4>';
+		$html .= '<ul id="' . esc_attr( $target_id ) . '" class="vk-metabox-post-list"></ul>';
+		return $html;
+	}
+
 	/*
 	get_news_body
 	/*--------------------------------------------------*/
 	public static function get_news_body() {
+		$html = '';
 		if ( 'ja' == get_locale() ) {
-			return self::get_news_from_rest_api();
+			// Japanese --------------------------------------
+			$html .= self::get_news_posttype_html( 
+				'Vektor製品更新情報', 
+				'https://www.vektor-inc.co.jp/product-update/?rel=vkadmin', 
+				'vk-product-update'
+			);
+			$html  .= self::get_news_posttype_html( 
+				'ベクトルからのお知らせ', 
+				'https://www.vektor-inc.co.jp/info/?rel=vkadmin', 
+				'vk-wp-info'
+			);
+			$html  .= self::get_news_posttype_html( 
+				'Vektor WordPress ブログ', 
+				'https://www.vektor-inc.co.jp/category/wordpress-info/?rel=vkadmin', 
+				'vk-wp-blog'
+			);
+			$html  .= self::get_news_posttype_html( 
+				'Vektor WordPress フォーラム', 
+				'https://vws.vektor-inc.co.jp/forums/?rel=vkadmin', 
+				'vk-wp-forum'
+			);
+		} else {
+			// English --------------------------------------
+			$html .= self::get_news_posttype_html( 
+				'Vektor WordPress Information', 
+				'https://vektor-inc.co.jp/en/information/?rel=vkadmin', 
+				'vk-wp-info'
+			);
+			$html  .= self::get_news_posttype_html( 
+				'Update Information', 
+				'https://vektor-inc.co.jp/en/update/?rel=vkadmin', 
+				'vk-wp-update'
+			);
 		}
-		// English
-		if ( 'ja' != get_locale() ) {
-			return self::get_news_from_rss();
-		}
-	}
-
-	/*
-	get_news_body_api
-	/*--------------------------------------------------*/
-
-	public static function get_news_from_rest_api() {
-		$html  = '<h4 class="vk-metabox-sub-title">';
-		$html .= 'Vektor製品更新情報';
-		$html .= '<a href="https://www.vektor-inc.co.jp/product-update/?rel=vkadmin" target="_blank" class="vk-metabox-more-link">記事一覧<span aria-hidden="true" class="dashicons dashicons-external"></span></a>';
-		$html .= '</h4>';
-		$html .= '<ul id="vk-product-update" class="vk-metabox-post-list"></ul>';
-
-		$html .= '<h4 class="vk-metabox-sub-title">';
-		$html .= 'ベクトルからのお知らせ';
-		$html .= '<a href="https://www.vektor-inc.co.jp/info/?rel=vkadmin" target="_blank" class="vk-metabox-more-link">記事一覧<span aria-hidden="true" class="dashicons dashicons-external"></span></a>';
-		$html .= '</h4>';
-		$html .= '<ul id="vk-wp-info" class="vk-metabox-post-list"></ul>';
-
-		$html .= '<h4 class="vk-metabox-sub-title">';
-		$html .= 'Vektor WordPress ブログ';
-		$html .= '<a href="https://www.vektor-inc.co.jp/category/wordpress-info/?rel=vkadmin" target="_blank" class="vk-metabox-more-link">記事一覧<span aria-hidden="true" class="dashicons dashicons-external"></span></a>';
-		$html .= '</h4>';
-		$html .= '<ul id="vk-wp-blog" class="vk-metabox-post-list"></ul>';
-
-		$html .= '<h4 class="vk-metabox-sub-title">';
-		$html .= 'Vektor WordPress フォーラム';
-		$html .= '<a href="https://vws.vektor-inc.co.jp/forums/?rel=vkadmin" target="_blank" class="vk-metabox-more-link">記事一覧<span aria-hidden="true" class="dashicons dashicons-external"></span></a>';
-		$html .= '</h4>';
-		$html .= '<ul id="vk-wp-forum" class="vk-metabox-post-list"></ul>';
 
 		$html = apply_filters( 'vk_admin_news_html', $html );
 
@@ -242,8 +249,22 @@ class VkAdmin {
 		<?php
 	}
 
-	public static function load_rest_api_js() {
+	public static function get_posts_from_rest_api_js( $url, $target_id, $data = true ) { ?>
+		$.getJSON( "<?php echo $url ;?>",
+		function(results) {
+			// 取得したJSONの内容をループする
+			$.each(results, function(i, item) {
+				// 日付のデータを取得
+				var date = new Date(item.date_gmt);
+				var formate_date = date.toLocaleDateString();
+				// JSONの内容の要素を</ul>の前に出力する
+				$("ul#<?php echo esc_attr( $target_id ); ?>").append('<li><?php if ( $data ) { ?><span class="date">'+ formate_date +'</span><?php } ?><a href="' + item.link + '?rel=vkadmin" target="_blank">' + item.title.rendered + '</a></li>');
+			});
+		});
+		<?php
+	}
 
+	public static function load_rest_api_js() {
 		?>
 	<script>
 	/*-------------------------------------------*/
@@ -252,121 +273,43 @@ class VkAdmin {
 	;(function($){
 		jQuery(document).ready(function($){
 
-			// お知らせ
-			$.getJSON( "https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3",
-			function(results) {
-					// 取得したJSONの内容をループする
-					$.each(results, function(i, item) {
-						// 日付のデータを取得
-						var date = new Date(item.date_gmt);
-						var formate_date = date.toLocaleDateString();
-						// JSONの内容の要素を</ul>の前に出力する
-						$("ul#vk-wp-info").append('<li><span class="date">'+ formate_date +'</span><a href="' + item.link + '?rel=vkadmin" target="_blank">' + item.title.rendered + '</a></li>');
-					});
-			});
+			<?php 
+			if ( 'ja' == get_locale() ) {
 
-			// 製品更新情報
-			$.getJSON( "https://vektor-inc.co.jp/wp-json/wp/v2/product-update/?per_page=5",
-			function(results) {
-					// 取得したJSONの内容をループする
-					$.each(results, function(i, item) {
-						// 日付のデータを取得
-						var date = new Date(item.date_gmt);
-						var formate_date = date.toLocaleDateString();
-						// JSONの内容の要素を</ul>の前に出力する
-						$("ul#vk-product-update").append('<li><span class="date">'+ formate_date +'</span><a href="' + item.link + '?rel=vkadmin" target="_blank">' + item.title.rendered + '</a></li>');
-					});
-			});
+				// Japanese --------------------------------------
+				// お知らせ
+				self::get_posts_from_rest_api_js( 'https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3', 'vk-wp-info' ); 
 
-			// ブログ
-			$.getJSON( "https://www.vektor-inc.co.jp/wp-json/wp/v2/posts/?categories=55&per_page=3",
-			function(results) {
-					// 取得したJSONの内容をループする
-					$.each(results, function(i, item) {
-						// 日付のデータを取得
-						var date = new Date(item.date_gmt);
-						var formate_date = date.toLocaleDateString();
-						// JSONの内容の要素を</ul>の前に出力する
-						$("ul#vk-wp-blog").append('<li><span class="date">'+ formate_date +'</span><a href="' + item.link + '?rel=vkadmin" target="_blank">' + item.title.rendered + '</a></li>');
-					});
-			});
+				// 製品更新情報
+				self::get_posts_from_rest_api_js( 'https://vektor-inc.co.jp/wp-json/wp/v2/product-update/?per_page=5', 'vk-product-update' ); 
 
-			// フォーラム
-			$.getJSON( "https://vws.vektor-inc.co.jp/wp-json/wp/v2/topics/?per_page=5",
-			function(results) {
-					$.each(results, function(i, item) {
-						var date = new Date(item.date_gmt);
-						var formate_date = date.toLocaleDateString();
-							$("ul#vk-wp-forum").append('<li><a href="' + item.link + '?rel=vkadmin" target="_blank">' + item.title.rendered + '</a></li>');
-					});
-			});
+				// ブログ
+				self::get_posts_from_rest_api_js( 'https://www.vektor-inc.co.jp/wp-json/wp/v2/posts/?categories=55&per_page=3', 'vk-wp-blog' );
+
+				// フォーラム
+				self::get_posts_from_rest_api_js( 'https://vws.vektor-inc.co.jp/wp-json/wp/v2/topics/?per_page=5', 'vk-wp-forum', false );
+
+			} else {
+
+				// English --------------------------------------
+				// お知らせ
+				self::get_posts_from_rest_api_js( 
+					'https://vektor-inc.co.jp/en/wp-json/wp/v2/posts/?per_page=3', 
+					'vk-wp-info'
+				); 
+
+				// 製品更新情報
+				self::get_posts_from_rest_api_js( 
+					'https://vektor-inc.co.jp/en/wp-json/wp/v2/update/?per_page=5', 
+					'vk-wp-update' 
+				); 
+			}
+			?>
 
 	});
 	})(jQuery);
 	</script>
 		<?php
-	}
-
-	/*
-	get_news_from_rss
-	/*  RSS方針で現在は日本語以外でのみ使用
-	/*--------------------------------------------------*/
-	public static function get_news_from_rss() {
-		$output = '';
-
-		include_once ABSPATH . WPINC . '/feed.php';
-
-		if ( 'ja' == get_locale() ) {
-			$exUnit_feed_url = apply_filters( 'vkAdmin_news_RSS_URL_ja', 'https://ex-unit.nagoya/ja/feed' );
-			// $exUnit_feed_url = apply_filters( 'vkAdmin_news_RSS_URL_ja', 'https://www.vektor-inc.co.jp/feed/?category_name=internship' );
-		} else {
-			$exUnit_feed_url = apply_filters( 'vkAdmin_news_RSS_URL', 'https://ex-unit.nagoya/feed' );
-		}
-
-		$my_feeds = array(
-			array( 'feed_url' => $exUnit_feed_url ),
-		);
-
-		foreach ( $my_feeds as $feed ) {
-			$rss = fetch_feed( $feed['feed_url'] );
-
-			if ( ! is_wp_error( $rss ) ) {
-				$output = '';
-
-				$maxitems  = $rss->get_item_quantity( 5 ); // number of news to display (maximum)
-				$rss_items = $rss->get_items( 0, $maxitems );
-				$output   .= '<div class="rss-widget">';
-				$output   .= '<h4 class="vk-metabox-sub-title">' . apply_filters( 'vk-admin-sub-title-text', 'Information' ) . '</h4>';
-				$output   .= '<ul>';
-
-				if ( $maxitems == 0 ) {
-					$output .= '<li>';
-					$output .= __( 'Sorry, there is no post.', 'vk_admin_textdomain' );
-					$output .= '</li>';
-				} else {
-					foreach ( $rss_items as $item ) {
-						$test_date = $item->get_local_date();
-						$content   = $item->get_content();
-
-						if ( isset( $test_date ) && ! is_null( $test_date ) ) {
-							$item_date = $item->get_date( get_option( 'date_format' ) ) . '<br />'; } else {
-							$item_date = ''; }
-
-							$output .= '<li style="color:#777;">';
-							$output .= $item_date;
-							$output .= '<a href="' . esc_url( $item->get_permalink() ) . '" title="' . $item_date . '" target="_blank">';
-							$output .= esc_html( $item->get_title() );
-							$output .= '</a>';
-							$output .= '</li>';
-					}
-				}
-
-				$output .= '</ul>';
-				$output .= '</div>';
-			}
-		} // if ( ! is_wp_error( $rss ) ) {
-
-		return $output;
 	}
 
 	public static function is_dashboard_active() {
@@ -401,9 +344,7 @@ class VkAdmin {
 	}
 
 	public static function dashboard_widget_body() {
-		if ( 'ja' == get_locale() ) {
-			echo self::get_news_body();
-		}
+		echo self::get_news_body();
 		echo self::get_admin_banner();
 	}
 
