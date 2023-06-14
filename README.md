@@ -1,4 +1,4 @@
-# VK Swiper
+# VK Admin
 
 ## 概要
 
