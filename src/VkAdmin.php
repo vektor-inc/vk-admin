@@ -12,7 +12,7 @@ namespace VektorInc\VK_Admin;
 
 class VkAdmin {
 
-	public static $version = '0.4.0';
+	public static $version = '0.4.1';
 
 	public static function init() {
 		$locale = ( is_admin() && function_exists( 'get_user_locale' ) ) ? get_user_locale() : get_locale();

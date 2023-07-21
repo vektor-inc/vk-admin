@@ -28,6 +28,9 @@ new VK_Admin();
 
 ## Change log
 
+== 0.4.1 ==
+[ Bug Fix ] Fixed problem of filepath on Windows local environment.
+
 == 0.4.0 ==
 [ Other ] Cope with English news
 [ Bug Fix ] Fix Widget Edit UI
