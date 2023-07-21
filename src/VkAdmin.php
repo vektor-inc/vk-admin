@@ -12,7 +12,7 @@ namespace VektorInc\VK_Admin;
 
 class VkAdmin {
 
-	public static $version = '0.4.0';
+	public static $version = '0.4.1';
 
 	public static function init() {
 		$locale = ( is_admin() && function_exists( 'get_user_locale' ) ) ? get_user_locale() : get_locale();
@@ -30,14 +30,16 @@ class VkAdmin {
 	}
 
 	public static function admin_common_css() {
-		$current_path = dirname( __FILE__ );
-		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
+		$current_path = wp_normalize_path( dirname( __FILE__ ) );
+		$abs_path     = wp_normalize_path( ABSPATH );
+		$current_url  = str_replace( $abs_path, site_url( '/' ), $current_path );
 		wp_enqueue_style( 'vk-admin-style', $current_url . '/assets/css/vk_admin.css', array(), self::$version, 'all' );
 	}
 
 	public static function admin_enqueue_scripts() {
-		$current_path = dirname( __FILE__ );
-		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
+		$current_path = wp_normalize_path( dirname( __FILE__ ) );
+		$abs_path     = wp_normalize_path( ABSPATH );
+		$current_url  = str_replace( $abs_path, site_url( '/' ), $current_path );
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_media();
 		wp_enqueue_script( 'vk-admin-js', $current_url . '/assets/js/vk_admin.js', array( 'jquery' ), self::$version );
@@ -211,24 +213,24 @@ class VkAdmin {
 				'https://www.vektor-inc.co.jp/product-update/?rel=vkadmin', 
 				'vk-product-update'
 			);
-			$html  .= self::get_news_posttype_html( 
+			$html .= self::get_news_posttype_html(
 				'ベクトルからのお知らせ', 
 				'https://www.vektor-inc.co.jp/info/?rel=vkadmin', 
 				'vk-wp-info'
 			);
-			$html  .= self::get_news_posttype_html( 
+			$html .= self::get_news_posttype_html(
 				'Vektor WordPress ブログ', 
 				'https://www.vektor-inc.co.jp/category/wordpress-info/?rel=vkadmin', 
 				'vk-wp-blog'
 			);
-			$html  .= self::get_news_posttype_html( 
+			$html .= self::get_news_posttype_html(
 				'Vektor WordPress フォーラム', 
 				'https://vws.vektor-inc.co.jp/forums/?rel=vkadmin', 
 				'vk-wp-forum'
 			);
 		} else {
 			// English --------------------------------------
-			$html  .= self::get_news_posttype_html( 
+			$html .= self::get_news_posttype_html(
 				'Update Information', 
 				'https://vektor-inc.co.jp/en/update/?rel=vkadmin', 
 				'vk-wp-update'
