@@ -214,6 +214,16 @@ class VkAdmin {
 				'vk-product-update'
 			);
 			$html .= self::get_news_posttype_html(
+				'VK Pattern Library', 
+				'https://patterns.vektor-inc.co.jp/?rel=vkadmin', 
+				'vk-pattern-library'
+			);
+			$html .= self::get_news_posttype_html(
+				'Vektor WordPress フォーラム', 
+				'https://vws.vektor-inc.co.jp/forums/?rel=vkadmin', 
+				'vk-wp-forum'
+			);
+			$html .= self::get_news_posttype_html(
 				'ベクトルからのお知らせ', 
 				'https://www.vektor-inc.co.jp/info/?rel=vkadmin', 
 				'vk-wp-info'
@@ -222,11 +232,6 @@ class VkAdmin {
 				'Vektor WordPress ブログ', 
 				'https://www.vektor-inc.co.jp/category/wordpress-info/?rel=vkadmin', 
 				'vk-wp-blog'
-			);
-			$html .= self::get_news_posttype_html(
-				'Vektor WordPress フォーラム', 
-				'https://vws.vektor-inc.co.jp/forums/?rel=vkadmin', 
-				'vk-wp-forum'
 			);
 		} else {
 			// English --------------------------------------
@@ -251,7 +256,8 @@ class VkAdmin {
 		<?php
 	}
 
-	public static function get_posts_from_rest_api_js( $url, $target_id, $data = true ) { ?>
+	public static function get_posts_from_rest_api_js( $url, $target_id, $data = true ) {
+		?>
 		$.getJSON( "<?php echo $url ;?>",
 		function(results) {
 			// 取得したJSONの内容をループする
@@ -280,7 +286,13 @@ class VkAdmin {
 
 				// Japanese --------------------------------------
 				// お知らせ
-				self::get_posts_from_rest_api_js( 'https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3', 'vk-wp-info' ); 
+				self::get_posts_from_rest_api_js( 'https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3', 'vk-wp-info' );
+
+				// VK Pattern Library
+				self::get_posts_from_rest_api_js( 'https://patterns.vektor-inc.co.jp/wp-json/wp/v2/vk-patterns/?per_page=3', 'vk-pattern-library' );
+
+				// フォーラム
+				self::get_posts_from_rest_api_js( 'https://vws.vektor-inc.co.jp/wp-json/wp/v2/topics/?per_page=5', 'vk-wp-forum', false );
 
 				// 製品更新情報
 				self::get_posts_from_rest_api_js( 'https://vektor-inc.co.jp/wp-json/wp/v2/product-update/?per_page=5', 'vk-product-update' ); 
@@ -288,8 +300,7 @@ class VkAdmin {
 				// ブログ
 				self::get_posts_from_rest_api_js( 'https://www.vektor-inc.co.jp/wp-json/wp/v2/posts/?categories=55&per_page=3', 'vk-wp-blog' );
 
-				// フォーラム
-				self::get_posts_from_rest_api_js( 'https://vws.vektor-inc.co.jp/wp-json/wp/v2/topics/?per_page=5', 'vk-wp-forum', false );
+
 
 			} else {
 
