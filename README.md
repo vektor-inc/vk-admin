@@ -28,6 +28,9 @@ new VK_Admin();
 
 ## Change log
 
+== 0.5.0 ==
+[ Other ]  Add article list of Vektor Pattern Library
+
 == 0.4.1 ==
 [ Bug Fix ] Fixed problem of filepath on Windows local environment.
 
