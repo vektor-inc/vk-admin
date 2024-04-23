@@ -19,8 +19,8 @@ require_once dirname( __FILE__ ) . '/vendor/autoload.php';
 本体を読み込んで実行
 
 ```
-use VektorInc\VK_Admin\VK_Admin;
-new VK_Admin();
+use VektorInc\VK_Admin\VkAdmin;
+VkAdmin::init();
 ```
 
 
