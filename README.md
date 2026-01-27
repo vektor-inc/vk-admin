@@ -28,6 +28,8 @@ VkAdmin::init();
 
 ## Change log
 
+[ Other ]  Fix CSS load hook.
+
 == 0.5.0 ==
 [ Other ]  Add article list of Vektor Pattern Library
 

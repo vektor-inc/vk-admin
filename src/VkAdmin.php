@@ -20,10 +20,13 @@ class VkAdmin {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'customize_register', array( __CLASS__, 'admin_common_css' ) );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'dashboard_widget' ), 1 );
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'add_widget_screen_css' ) );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'add_widget_screen_css' ) );
 	}
 
 	public static function add_widget_screen_css() {
+		if ( ! is_admin() ) {
+			return;
+		}
 		$current_path = dirname( __FILE__ );
 		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
 		wp_enqueue_style( 'vk-admin-style', $current_url . '/assets/css/customize-and-widget.css', array(), self::$version, 'all' );
