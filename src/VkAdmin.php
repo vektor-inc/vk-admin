@@ -23,26 +23,45 @@ class VkAdmin {
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'add_widget_screen_css' ) );
 	}
 
+	/**
+	 * 現在のディレクトリ（__DIR__）に対応する URL を返す
+	 * WordPress を専用ディレクトリに置く構成（site_url と home_url が異なる）や
+	 * wp-content の場所をカスタマイズしている環境でも正しく動作するよう、
+	 * ABSPATH ではなく WP_CONTENT_DIR / content_url() を起点に解決する。
+	 *
+	 * @return string 現在のディレクトリの URL
+	 */
+	protected static function get_current_dir_url() {
+		$current_path = wp_normalize_path( dirname( __FILE__ ) );
+		$content_path = wp_normalize_path( WP_CONTENT_DIR );
+
+		// WP_CONTENT_DIR が現在のパスの先頭に一致する想定。
+		// content_url() を基準に置換することで site_url と home_url が異なる
+		// 構成でも正しい URL を組み立てられる。
+		if ( 0 === strpos( $current_path, $content_path ) ) {
+			return str_replace( $content_path, content_url(), $current_path );
+		}
+
+		// フォールバック: 従来通り ABSPATH ベースで解決する。
+		$abs_path = wp_normalize_path( ABSPATH );
+		return str_replace( $abs_path, site_url( '/' ), $current_path );
+	}
+
 	public static function add_widget_screen_css() {
 		if ( ! is_admin() ) {
 			return;
 		}
-		$current_path = dirname( __FILE__ );
-		$current_url  = str_replace( ABSPATH, site_url( '/' ), $current_path );
+		$current_url = self::get_current_dir_url();
 		wp_enqueue_style( 'vk-admin-style', $current_url . '/assets/css/customize-and-widget.css', array(), self::$version, 'all' );
 	}
 
 	public static function admin_common_css() {
-		$current_path = wp_normalize_path( dirname( __FILE__ ) );
-		$abs_path     = wp_normalize_path( ABSPATH );
-		$current_url  = str_replace( $abs_path, site_url( '/' ), $current_path );
+		$current_url = self::get_current_dir_url();
 		wp_enqueue_style( 'vk-admin-style', $current_url . '/assets/css/vk_admin.css', array(), self::$version, 'all' );
 	}
 
 	public static function admin_enqueue_scripts() {
-		$current_path = wp_normalize_path( dirname( __FILE__ ) );
-		$abs_path     = wp_normalize_path( ABSPATH );
-		$current_url  = str_replace( $abs_path, site_url( '/' ), $current_path );
+		$current_url = self::get_current_dir_url();
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_media();
 		wp_enqueue_script( 'vk-admin-js', $current_url . '/assets/js/vk_admin.js', array( 'jquery' ), self::$version );

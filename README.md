@@ -28,6 +28,7 @@ VkAdmin::init();
 
 ## Change log
 
+[ Bug Fix ] Fixed broken vk_admin.js / CSS URL on environments where site_url and home_url differ (WordPress installed in its own directory) or wp-content is relocated.
 [ Other ]  Fix CSS load hook.
 
 == 0.5.0 ==
