@@ -32,19 +32,31 @@ class VkAdmin {
 	 * @return string 現在のディレクトリの URL
 	 */
 	protected static function get_current_dir_url() {
-		$current_path = wp_normalize_path( dirname( __FILE__ ) );
-		$content_path = wp_normalize_path( WP_CONTENT_DIR );
+		// 現在のディレクトリ末尾にもスラッシュを付与しておくことで、
+		// dirname() が末尾スラッシュなしを返すケースでも比較対象と桁を揃える。
+		$current_path = trailingslashit( wp_normalize_path( dirname( __FILE__ ) ) );
 
 		// WP_CONTENT_DIR が現在のパスの先頭に一致する想定。
+		// 末尾スラッシュ付きで比較・置換することで、wp-content と wp-content-other
+		// のような同一プレフィックス別ディレクトリへの誤マッチを防ぐ。
 		// content_url() を基準に置換することで site_url と home_url が異なる
 		// 構成でも正しい URL を組み立てられる。
+		$content_path = trailingslashit( wp_normalize_path( WP_CONTENT_DIR ) );
 		if ( 0 === strpos( $current_path, $content_path ) ) {
-			return str_replace( $content_path, content_url(), $current_path );
+			$current_url = trailingslashit( content_url() ) . substr( $current_path, strlen( $content_path ) );
+			return untrailingslashit( $current_url );
 		}
 
 		// フォールバック: 従来通り ABSPATH ベースで解決する。
-		$abs_path = wp_normalize_path( ABSPATH );
-		return str_replace( $abs_path, site_url( '/' ), $current_path );
+		// こちらも末尾スラッシュ付きで比較し、誤マッチを防ぐ。
+		$abs_path = trailingslashit( wp_normalize_path( ABSPATH ) );
+		if ( 0 === strpos( $current_path, $abs_path ) ) {
+			$current_url = trailingslashit( site_url( '/' ) ) . substr( $current_path, strlen( $abs_path ) );
+			return untrailingslashit( $current_url );
+		}
+
+		// いずれにも一致しない場合は最後の保険として従来挙動を維持する。
+		return untrailingslashit( str_replace( $abs_path, trailingslashit( site_url( '/' ) ), $current_path ) );
 	}
 
 	public static function add_widget_screen_css() {
