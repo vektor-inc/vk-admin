@@ -28,6 +28,9 @@ VkAdmin::init();
 
 ## Change log
 
+== 0.5.1 ==
+[ Bug Fix ] Fixed broken vk_admin.js / CSS URL on environments where site_url and home_url differ (WordPress installed in its own directory) or wp-content is relocated.
+[ Bug Fix ] Skip enqueuing widget screen CSS when not in admin context.
 [ Other ]  Fix CSS load hook.
 
 == 0.5.0 ==
