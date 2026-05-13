@@ -55,8 +55,11 @@ class VkAdmin {
 			return untrailingslashit( $current_url );
 		}
 
-		// いずれにも一致しない場合は最後の保険として従来挙動を維持する。
-		return untrailingslashit( str_replace( $abs_path, trailingslashit( site_url( '/' ) ), $current_path ) );
+		// いずれにも一致しない場合でも、必ず URL を返す。
+		// str_replace では置換対象が見つからないとパスをそのまま返してしまい、
+		// 絶対パスが URL として enqueue されてしまうため、plugins_url() に委ねる。
+		// vendor 配下に置かれていても plugins_url は親プラグインの URL を解決してくれる。
+		return untrailingslashit( plugins_url( '', __FILE__ ) );
 	}
 
 	public static function add_widget_screen_css() {
