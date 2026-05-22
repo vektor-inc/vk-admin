@@ -30,9 +30,10 @@ if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'VK_Custom_Text_C
 	 *
 	 * 公開プロパティ:
 	 *  - $type         : control の type 識別子（'customtext'）。
-	 *  - $description  : input の下に表示する説明文（wp_kses_post でエスケープ）。
 	 *  - $input_before : input の左側に表示する補助文字列（例: '$' などの単位記号）。
 	 *  - $input_after  : input の右側に表示する補助文字列（例: 'px' などの単位ラベル）。
+	 *
+	 * $description は親クラス WP_Customize_Control が提供するプロパティをそのまま利用する。
 	 *
 	 * 利用例:
 	 *  $wp_customize->add_control(
@@ -58,15 +59,6 @@ if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'VK_Custom_Text_C
 		 * @var string
 		 */
 		public $type = 'customtext';
-
-		/**
-		 * Description displayed under the input.
-		 *
-		 * 入力欄の下に表示する説明文。wp_kses_post() でエスケープされる。
-		 *
-		 * @var string
-		 */
-		public $description = '';
 
 		/**
 		 * String displayed before the input.
