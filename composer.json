@@ -5,7 +5,11 @@
 	"autoload": {
 		"psr-4": {
 			"VektorInc\\VK_Admin\\": "src/"
-		}
+		},
+		"files": [
+			"src/VK_Custom_Html_Control.php",
+			"src/VK_Custom_Text_Control.php"
+		]
 	},
 	"authors": [
 		{
