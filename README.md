@@ -75,6 +75,10 @@ $wp_customize->add_control(
 
 ## Change log
 
+== 0.6.1 ==
+[ Bug Fix ] Defer VK_Custom_Html_Control / VK_Custom_Text_Control class declaration to the `customize_register` action so that the classes do not fail to load when `WP_Customize_Control` is not yet available at composer autoload time.
+
+== 0.6.0 ==
 [ Feature Add ] Add VK_Custom_Html_Control and VK_Custom_Text_Control as shared customizer controls for reuse across plugins.
 
 == 0.5.1 ==
