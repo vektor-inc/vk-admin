@@ -70,10 +70,41 @@ $wp_customize->add_control(
 );
 ```
 
+#### input_type / input_attrs（type=number 等への対応）
+
+`input_type` で input の type 属性を、`input_attrs` で任意の属性（`min` / `max` / `step` / `inputmode` / `data-*` / `aria-*` 等）を指定できます。
+画像サイズ入力など、数値専用の入力欄を作りたいときに利用してください。
+
+```php
+$wp_customize->add_control(
+    new VK_Custom_Text_Control(
+        $wp_customize,
+        'your_setting_image_width',
+        array(
+            'section'     => 'your_section',
+            'label'       => __( 'Image width', 'your-textdomain' ),
+            'input_type'  => 'number',
+            'input_after' => 'px',
+            'input_attrs' => array(
+                'min'       => 1,
+                'max'       => 500,
+                'step'      => 1,
+                'inputmode' => 'numeric',
+            ),
+        )
+    )
+);
+```
+
+`input_type` を省略した場合は従来どおり `text` として動作します（後方互換）。
+
 
 ---
 
 ## Change log
+
+== 0.7.0 ==
+[ Feature Add ] Add `input_type` and `input_attrs` properties to `VK_Custom_Text_Control` so it can render `type=number` and other input types with arbitrary attributes (`min` / `max` / `step` / `inputmode` etc). Existing usage keeps working unchanged because both properties default to the previous behavior (`input_type='text'`, `input_attrs=array()`).
 
 == 0.6.1 ==
 [ Bug Fix ] Defer VK_Custom_Html_Control / VK_Custom_Text_Control class declaration to the `customize_register` action so that the classes do not fail to load when `WP_Customize_Control` is not yet available at composer autoload time.

@@ -63,6 +63,8 @@ if ( ! function_exists( 'vk_admin_register_custom_text_control' ) ) {
 		 *  - $type         : control の type 識別子（'customtext'）。
 		 *  - $input_before : input の左側に表示する補助文字列（例: '$' などの単位記号）。
 		 *  - $input_after  : input の右側に表示する補助文字列（例: 'px' などの単位ラベル）。
+		 *  - $input_type   : input 要素の type 属性（例: 'text', 'number', 'email' など）。
+		 *  - $input_attrs  : input 要素に出力する任意属性の連想配列（例: array( 'min' => 1, 'max' => 500 )）。
 		 *
 		 * $description は親クラス WP_Customize_Control が提供するプロパティをそのまま利用する。
 		 *
@@ -75,7 +77,14 @@ if ( ! function_exists( 'vk_admin_register_custom_text_control' ) ) {
 		 *              'section'     => 'vk_admin_sample_section',
 		 *              'label'       => __( 'Width', 'your-textdomain' ),
 		 *              'description' => __( '幅と高さを揃えたい場合は両方指定してください。', 'your-textdomain' ),
+		 *              'input_type'  => 'number',
 		 *              'input_after' => 'px',
+		 *              'input_attrs' => array(
+		 *                  'min'       => 1,
+		 *                  'max'       => 500,
+		 *                  'step'      => 1,
+		 *                  'inputmode' => 'numeric',
+		 *              ),
 		 *          )
 		 *      )
 		 *  );
@@ -110,11 +119,37 @@ if ( ! function_exists( 'vk_admin_register_custom_text_control' ) ) {
 			public $input_after = '';
 
 			/**
+			 * Input type attribute.
+			 *
+			 * input 要素の type 属性に出力する文字列。
+			 * 例: 'text', 'number', 'email', 'url', 'tel', 'password' など。
+			 * 空文字や非文字列が指定された場合は render 時に 'text' へフォールバックする。
+			 *
+			 * @var string
+			 */
+			public $input_type = 'text';
+
+			/**
+			 * Extra input attributes.
+			 *
+			 * input 要素に追加で出力する任意属性の連想配列。
+			 * 例: array( 'min' => 1, 'max' => 500, 'step' => 1, 'inputmode' => 'numeric', 'pattern' => '\\d+' )
+			 * 属性名・属性値ともに esc_attr() でエスケープして出力するため、
+			 * data-* / aria-* 等もそのまま渡すことができる。
+			 *
+			 * @var array
+			 */
+			public $input_attrs = array();
+
+			/**
 			 * Render the control's content.
 			 *
 			 * ラベル・input_before・input 本体・input_after・description の順で出力する。
 			 * input_before / input_after が設定されている場合は input の幅を 50% に抑え、
 			 * 補助文字列との並びが破綻しないようにする。
+			 *
+			 * input_type / input_attrs を併用することで、type=number 等の他の input タイプや
+			 * min / max / step / inputmode などの任意属性を出力できる。
 			 *
 			 * @return void
 			 */
@@ -122,12 +157,28 @@ if ( ! function_exists( 'vk_admin_register_custom_text_control' ) ) {
 				// input_before / input_after があるときは input の幅を 50% に抑え、
 				// 補助文字列との並びを保つ。
 				$input_style = ( $this->input_before || $this->input_after ) ? ' style="width:50%"' : '';
+
+				// input_type が空文字や非文字列の場合は 'text' にフォールバックする防御。
+				// ホワイトリスト的なチェックは行わないが、esc_attr で XSS は防止される。
+				$input_type = ( is_string( $this->input_type ) && '' !== $this->input_type ) ? $this->input_type : 'text';
+
+				// input_attrs が配列でない場合に foreach で fatal を起こさないよう配列にフォールバック。
+				$input_attrs = is_array( $this->input_attrs ) ? $this->input_attrs : array();
 				?>
 				<label>
 					<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 					<div>
 						<?php echo wp_kses_post( $this->input_before ); ?>
-						<input type="text" value="<?php echo esc_attr( $this->value() ); ?>"<?php echo $input_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 内部で固定値のみを設定。 ?> <?php $this->link(); ?> />
+						<input
+							type="<?php echo esc_attr( $input_type ); ?>"
+							value="<?php echo esc_attr( $this->value() ); ?>"
+							<?php // 任意属性（min / max / step / inputmode / data-* / aria-* など）。 ?>
+							<?php foreach ( $input_attrs as $attr_name => $attr_value ) : ?>
+								<?php echo esc_attr( $attr_name ); ?>="<?php echo esc_attr( $attr_value ); ?>"
+							<?php endforeach; ?>
+							<?php echo $input_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 内部で固定値のみを設定。 ?>
+							<?php $this->link(); ?>
+						/>
 						<?php echo wp_kses_post( $this->input_after ); ?>
 					</div>
 					<?php if ( $this->description ) : ?>
