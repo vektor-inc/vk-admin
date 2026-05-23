@@ -98,6 +98,15 @@ $wp_customize->add_control(
 
 `input_type` を省略した場合は従来どおり `text` として動作します（後方互換）。
 
+##### `input_attrs` の安全性
+
+`input_attrs` に渡した値はバリデーションを通った上で出力されます。安全性・既存プロパティとの衝突回避のため、以下の属性は自動的に除外されます。
+
+- `type` / `value` / `style` の各属性（`type` / `value` は既存プロパティと衝突。`style` は `esc_attr()` だけでは XSS を防ぎきれないため）
+- `on*` から始まる属性（`onclick` / `onload` などのイベントハンドラ）
+
+また、属性値は **scalar（文字列・数値・bool）** のみ許可されます。配列・オブジェクト・`null` を渡した場合はその属性自体が出力されません。`bool` を渡した場合は HTML5 の boolean attribute として扱われ、`true` なら属性名のみが出力され、`false` なら属性自体が省略されます。
+
 
 ---
 

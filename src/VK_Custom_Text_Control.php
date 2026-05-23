@@ -137,6 +137,13 @@ if ( ! function_exists( 'vk_admin_register_custom_text_control' ) ) {
 			 * 属性名・属性値ともに esc_attr() でエスケープして出力するため、
 			 * data-* / aria-* 等もそのまま渡すことができる。
 			 *
+			 * セキュリティおよび既存プロパティとの衝突回避のため、render_content() 内で
+			 * 以下の属性は自動的に除外される:
+			 * - 'type' / 'value' / 'style'（既存プロパティと衝突、または XSS リスク）
+			 * - 'on*'（onclick / onload 等のイベントハンドラ）
+			 * また、属性値は scalar のみ許可（配列・オブジェクト・null はスキップ）。
+			 * bool 値は HTML5 boolean attribute として扱われる（true なら属性名のみ出力）。
+			 *
 			 * @var array
 			 */
 			public $input_attrs = array();
@@ -172,9 +179,40 @@ if ( ! function_exists( 'vk_admin_register_custom_text_control' ) ) {
 						<input
 							type="<?php echo esc_attr( $input_type ); ?>"
 							value="<?php echo esc_attr( $this->value() ); ?>"
-							<?php // 任意属性（min / max / step / inputmode / data-* / aria-* など）。 ?>
-							<?php foreach ( $input_attrs as $attr_name => $attr_value ) : ?>
-								<?php echo esc_attr( $attr_name ); ?>="<?php echo esc_attr( $attr_value ); ?>"
+							<?php
+							// 任意属性（min / max / step / inputmode / data-* / aria-* など）。
+							// 属性名・属性値のバリデーションを行い、不正な値や危険な属性は出力しない。
+							// - 属性名: 文字列かつ非空のもののみ許可。
+							// - 'on*'（onclick / onload 等のイベントハンドラ）はスキップ。
+							// - 予約属性（type / value / style）はクラスの既存プロパティと衝突するためスキップ。
+							//   さらに style は esc_attr() だけでは XSS を防ぎきれないので一律除外。
+							// - 属性値: スカラーのみ許可。bool true は HTML5 boolean attribute として
+							//   属性名のみを出力、bool false は省略。null・配列・オブジェクトは出力しない。
+							$reserved_attrs = array( 'type', 'value', 'style' );
+							foreach ( $input_attrs as $attr_name => $attr_value ) :
+								// 属性名が文字列でない、または空文字ならスキップ。
+								if ( ! is_string( $attr_name ) || '' === $attr_name ) {
+									continue;
+								}
+								// 比較は小文字で行う（HTML 属性名は大文字小文字を区別しないため）。
+								$attr_name_lc = strtolower( $attr_name );
+								// イベントハンドラ系（on*）と予約属性は出力しない。
+								if ( 0 === strpos( $attr_name_lc, 'on' ) || in_array( $attr_name_lc, $reserved_attrs, true ) ) {
+									continue;
+								}
+								// bool 値は HTML5 boolean attribute として扱う（true なら属性名のみ、false なら省略）。
+								if ( is_bool( $attr_value ) ) {
+									if ( $attr_value ) {
+										echo esc_attr( $attr_name );
+									}
+									continue;
+								}
+								// null / 配列 / オブジェクトはそのまま esc_attr に渡せないのでスキップ。
+								if ( null === $attr_value || ! is_scalar( $attr_value ) ) {
+									continue;
+								}
+								?>
+								<?php echo esc_attr( $attr_name ); ?>="<?php echo esc_attr( (string) $attr_value ); ?>"
 							<?php endforeach; ?>
 							<?php echo $input_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 内部で固定値のみを設定。 ?>
 							<?php $this->link(); ?>
