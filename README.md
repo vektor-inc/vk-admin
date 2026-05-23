@@ -49,6 +49,30 @@ $wp_customize->add_control(
 );
 ```
 
+#### label_tag（見出しタグの切り替え）
+
+`label_tag` で label を囲む見出しタグを指定できます。親セクション（h2）配下の子セクション見出しとして h3 を使うなど、情報階層に合わせて見出しレベルを下げたい場合に利用します。
+
+```php
+$wp_customize->add_control(
+    new VK_Custom_Html_Control(
+        $wp_customize,
+        'setting_id',
+        array(
+            'label'       => __( 'Image size', 'your-textdomain' ),
+            'label_tag'   => 'h3', // 親の h2 配下の子セクション見出しとして h3 を使う
+            'section'     => 'my_section',
+            'custom_html' => '<p>' . esc_html__( '説明文', 'your-textdomain' ) . '</p>',
+        )
+    )
+);
+```
+
+- 許容値: `'h2'` / `'h3'` / `'h4'` / `'h5'` / `'h6'`
+- 上記以外を指定した場合は安全のため `'h2'` にフォールバックします。
+- 省略時のデフォルトは `'h2'` のため、既存利用箇所への影響はありません（後方互換）。
+- 出力される CSS クラスはタグに対応した `admin-custom-h2` / `admin-custom-h3` / `admin-custom-h4` / `admin-custom-h5` / `admin-custom-h6` になります。`admin-custom-h2` は従来から存在するクラスのためデフォルト挙動はそのままです。`h3` 以降のスタイルは vk-admin 側では同梱していないため、各プラグイン・テーマ側で必要に応じて用意してください。
+
 ### VK_Custom_Text_Control
 
 text 入力欄の前後に補助文字列（例: 単位ラベル）を、入力欄の下に共通 description を
@@ -111,6 +135,9 @@ $wp_customize->add_control(
 ---
 
 ## Change log
+
+== 0.8.0 ==
+[ Feature Add ] Add `label_tag` property to `VK_Custom_Html_Control` so it can render the label heading as `h2` / `h3` / `h4` / `h5` / `h6`. This allows child sections (e.g. "Image size" inside a parent "Page top button image" section) to use a lower heading level (`h3`) to keep the information hierarchy consistent. Existing usage keeps working unchanged because the property defaults to `'h2'` (renders the same `<h2 class="admin-custom-h2">` markup as before).
 
 == 0.7.0 ==
 [ Feature Add ] Add `input_type` and `input_attrs` properties to `VK_Custom_Text_Control` so it can render `type=number` and other input types with arbitrary attributes (`min` / `max` / `step` / `inputmode` etc). Existing usage keeps working unchanged because both properties default to the previous behavior (`input_type='text'`, `input_attrs=array()`).

@@ -59,6 +59,7 @@ if ( ! function_exists( 'vk_admin_register_custom_html_control' ) ) {
 		 *
 		 * 公開プロパティ:
 		 *  - $type             : control の type 識別子（'customtext'）。
+		 *  - $label_tag        : label を囲む見出しタグ（'h2' / 'h3' / 'h4' / 'h5' / 'h6'、デフォルト 'h2'）。
 		 *  - $custom_title_sub : ラベルの直下に表示するサブタイトル（h3）。
 		 *  - $custom_html      : サブタイトルの下に表示する任意 HTML（wp_kses_post でエスケープ）。
 		 *
@@ -75,6 +76,20 @@ if ( ! function_exists( 'vk_admin_register_custom_html_control' ) ) {
 		 *          )
 		 *      )
 		 *  );
+		 *
+		 * label_tag の利用例（親 h2 配下の子セクション見出しとして h3 を使う）:
+		 *  $wp_customize->add_control(
+		 *      new VK_Custom_Html_Control(
+		 *          $wp_customize,
+		 *          'vk_admin_sample_subsection',
+		 *          array(
+		 *              'section'     => 'vk_admin_sample_section',
+		 *              'label'       => __( 'Image size', 'your-textdomain' ),
+		 *              'label_tag'   => 'h3',
+		 *              'custom_html' => '<p>' . esc_html__( '説明文', 'your-textdomain' ) . '</p>',
+		 *          )
+		 *      )
+		 *  );
 		 */
 		class VK_Custom_Html_Control extends WP_Customize_Control {
 
@@ -86,6 +101,19 @@ if ( ! function_exists( 'vk_admin_register_custom_html_control' ) ) {
 			 * @var string
 			 */
 			public $type = 'customtext';
+
+			/**
+			 * Heading tag used to wrap the main label.
+			 *
+			 * label を囲む見出しタグ。情報階層の逆転を避けるため、親セクション（h2）の
+			 * 配下に置く子セクションで 'h3' などを指定して見出しレベルを下げる用途。
+			 *
+			 * 許容値: 'h2' / 'h3' / 'h4' / 'h5' / 'h6'
+			 * 上記以外が渡された場合は安全のため 'h2' にフォールバックする。
+			 *
+			 * @var string
+			 */
+			public $label_tag = 'h2';
 
 			/**
 			 * Sub title shown under the main label.
@@ -111,12 +139,27 @@ if ( ! function_exists( 'vk_admin_register_custom_html_control' ) ) {
 			 * ラベル → サブタイトル → 任意 HTML の順で出力する。
 			 * いずれも未設定の場合は何も出力しない。
 			 *
+			 * label は $label_tag で指定された見出しタグ（デフォルト h2）で出力する。
+			 * 許容外の値が指定された場合は安全のため h2 にフォールバックする。
+			 *
 			 * @return void
 			 */
 			public function render_content() {
-				// ラベルが設定されていれば h2 として出力する。
+				// ラベルが設定されていれば $label_tag で指定された見出しタグとして出力する。
 				if ( $this->label ) {
-					echo '<h2 class="admin-custom-h2">' . wp_kses_post( $this->label ) . '</h2>';
+					// 許容する見出しタグのリスト。h1 はカスタマイザーパネルのタイトル等と衝突しうるため含めない。
+					$allowed_tags = array( 'h2', 'h3', 'h4', 'h5', 'h6' );
+					// 入力を小文字化し、許容リストに含まれない場合は 'h2' にフォールバックする。
+					$label_tag = in_array( strtolower( (string) $this->label_tag ), $allowed_tags, true ) ? strtolower( (string) $this->label_tag ) : 'h2';
+					// CSS クラスはタグに対応する名前にする（'admin-custom-h2' / 'admin-custom-h3' / ...）。
+					// 'admin-custom-h2' は従来から存在するクラス名のため、デフォルト挙動の後方互換が維持される。
+					$label_class = 'admin-custom-' . $label_tag;
+					printf(
+						'<%1$s class="%2$s">%3$s</%1$s>',
+						esc_attr( $label_tag ),
+						esc_attr( $label_class ),
+						wp_kses_post( $this->label )
+					);
 				}
 				// サブタイトルが設定されていれば h3 として出力する。
 				if ( $this->custom_title_sub ) {
