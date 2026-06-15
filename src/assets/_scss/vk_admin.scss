@@ -36,10 +36,6 @@
 		.adminMain_sub_inner {
 			position: sticky;
 			top: 30px;
-			max-height: calc(100vh - 30px);
-			overflow-y: auto;
-			overscroll-behavior: contain;
-			scrollbar-gutter: stable;
 		}
 
 	}
