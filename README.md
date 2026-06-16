@@ -25,6 +25,8 @@ VkAdmin::init();
 
 ## Change log
 
+[ Bug Fix ] Fixed the settings page left sidebar navigation being pushed off-screen and unreachable when admin notices appeared, by showing notices at the top of the page (main area) instead.
+
 [ Spec Change ] Remove `VK_Custom_Html_Control` and `VK_Custom_Text_Control` because the same classes are now provided by [vektor-inc/vk-helpers](https://github.com/vektor-inc/vk-helpers) 0.3.0+. Projects that pulled these classes from vk-admin must switch to `vektor-inc/vk-helpers ^0.3.0` (this is a breaking change).
 
 == 0.7.0 ==

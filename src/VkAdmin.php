@@ -432,6 +432,21 @@ class VkAdmin {
 				<?php endif; ?>
 			<?php endif; ?>
 
+			<?php
+			/*
+			 * Hidden marker for WordPress admin notices.
+			 * WordPress core (wp-admin/js/common.js) moves admin notices to just
+			 * after `.wp-header-end`. Without this marker, the column_3 layout has no
+			 * h1, so notices get inserted after the first heading inside the sidebar
+			 * (the h2.page_title), pushing the navigation off-screen. Placing this
+			 * marker above `.adminLayout` makes notices appear at the top of the page
+			 * (in the main area) for every layout, keeping the sidebar navigation
+			 * visible. For column_2 the marker sits right after the h1, so the notice
+			 * position is identical to before (no change).
+			 */
+			?>
+			<hr class="wp-header-end" />
+
 			<div class="adminLayout">
 				<div class="adminMain <?php echo $get_layout; ?>">
 
