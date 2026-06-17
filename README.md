@@ -25,6 +25,7 @@ VkAdmin::init();
 
 ## Change log
 
+== 0.8.1 ==
 [ Bug Fix ] Fixed admin CSS/JS not refreshing in the browser after an update because of a stale asset cache-busting version.
 
 [ Bug Fix ] Fixed the settings page left sidebar navigation being pushed off-screen and unreachable when admin notices appeared, by showing notices at the top of the page (main area) instead.
