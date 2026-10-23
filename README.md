@@ -25,6 +25,8 @@ VkAdmin::init();
 
 ## Change log
 
+[ Dev Environment ] Updated Node.js for development (Volta) from 18.13.0 to 24.22.1.
+
 == 0.8.1 ==
 [ Bug Fix ] Fixed admin CSS/JS not refreshing in the browser after an update because of a stale asset cache-busting version.
 
