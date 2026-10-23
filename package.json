@@ -26,8 +26,5 @@
 		"gulp-sass": "^5.1.0",
 		"npm-check-updates": "^16.10.8",
 		"sass": "^1.62.0"
-	},
-	"volta": {
-		"node": "24.22.1"
 	}
 }
