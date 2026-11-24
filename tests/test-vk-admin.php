@@ -13,6 +13,228 @@ use VektorInc\VK_Admin\VkAdmin;
 class VkAdminTest extends WP_UnitTestCase {
 
 	/**
+	 * テスト前のファイルシステム（WP_Filesystem() が設定するグローバル変数 $wp_filesystem）.
+	 *
+	 * @var WP_Filesystem_Base|null
+	 */
+	private $wp_filesystem_backup;
+
+	/**
+	 * テスト用のファイルシステムに差し替える前の $wp_filesystem を退避する.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->wp_filesystem_backup = isset( $GLOBALS['wp_filesystem'] ) ? $GLOBALS['wp_filesystem'] : null;
+	}
+
+	/**
+	 * 退避した $wp_filesystem を戻し、テスト用のファイルシステムに用意した内容を消す.
+	 */
+	public function tear_down() {
+		$GLOBALS['wp_filesystem'] = $this->wp_filesystem_backup;
+		if ( class_exists( 'WP_Filesystem_Vk_Admin_Test', false ) ) {
+			WP_Filesystem_Vk_Admin_Test::$contents = array();
+		}
+		parent::tear_down();
+	}
+
+	/**
+	 * バナー get_admin_banner() が、外部の JSON から取得したリンク先・画像の URL・代替テキストをエスケープして出力するかを確かめる.
+	 */
+	public function test_get_admin_banner() {
+		// 外部の JSON の代わりに、テストで用意した内容を返すファイルシステムを使う.
+		require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+		require_once __DIR__ . '/class-wp-filesystem-vk-admin-test.php';
+		add_filter(
+			'filesystem_method',
+			/**
+			 * テスト用のファイルシステムの方式名を返す.
+			 *
+			 * @return string 方式名.
+			 */
+			function () {
+				return 'Vk_Admin_Test';
+			}
+		);
+
+		$admin_url = admin_url();
+
+		$test_cases = array(
+			array(
+				'test_condition_name' => '英語のサイトで、外部サイトへのリンクのプラグインのバナー => そのまま出力される',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'plugin',
+						'slug'       => 'vk-filter-search-pro-global-edition/vk-filter-search-pro-global-edition.php',
+						'image_file' => 'ad_banner-vk-filter-search-pro-en.jpg',
+						'link_url'   => 'https://vk-filter-search.com/?rel=vkadmin',
+						'alt'        => 'VK Filter Search Pro Global Edition',
+						'language'   => 'en',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '<a href="https://vk-filter-search.com/?rel=vkadmin" target="_blank" class="admin_banner"><img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/ad_banner-vk-filter-search-pro-en.jpg" alt="VK Filter Search Pro Global Edition" /></a>',
+			),
+			array(
+				'test_condition_name' => '英語のサイトで、外部サイトへのリンクのテーマのバナー => そのまま出力される',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'theme',
+						'slug'       => 'lightning/style.css',
+						'image_file' => 'lightning_bnr_en.jpg',
+						'link_url'   => 'https://lightning.nagoya/?rel=vkadmin',
+						'alt'        => 'Lightning',
+						'language'   => 'en',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '<a href="https://lightning.nagoya/?rel=vkadmin" target="_blank" class="admin_banner"><img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/lightning_bnr_en.jpg" alt="Lightning" /></a>',
+			),
+			array(
+				'test_condition_name' => '日本語のサイトで、代替テキストが日本語のプラグインのバナー => そのまま出力される',
+				'conditions'          => array(
+					'locale'  => 'ja',
+					'product' => array(
+						'type'       => 'plugin',
+						'slug'       => 'vektor-passport/vektor-passport.php',
+						'image_file' => 'ad_banner-vektor-passport-ja.jpg',
+						'link_url'   => 'https://vws.vektor-inc.co.jp/vektor-passport?rel=vkadmin',
+						'alt'        => 'ベクトルパスポート',
+						'language'   => 'ja',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '<a href="https://vws.vektor-inc.co.jp/vektor-passport?rel=vkadmin" target="_blank" class="admin_banner"><img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/ad_banner-vektor-passport-ja.jpg" alt="ベクトルパスポート" /></a>',
+			),
+			array(
+				'test_condition_name' => '管理画面のプラグイン検索へのリンク（& で複数のパラメーターをつなぐ） => & が文字参照 &#038; で出力される',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'plugin',
+						'slug'       => 'vk-block-patterns/vk-block-patterns.php',
+						'image_file' => 'vk-block-patterns_bnr_en.jpg',
+						'link_url'   => 'plugin-install.php?s=vk+block+patterns&tab=search&type=term',
+						'alt'        => 'VK Block Patterns',
+						'language'   => 'en',
+						'admin_url'  => true,
+					),
+				),
+				'expected'            => '<a href="' . $admin_url . 'plugin-install.php?s=vk+block+patterns&#038;tab=search&#038;type=term" target="_blank" class="admin_banner"><img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/vk-block-patterns_bnr_en.jpg" alt="VK Block Patterns" /></a>',
+			),
+			array(
+				'test_condition_name' => '代替テキストに & を含む => & が文字参照 &amp; で出力される',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'plugin',
+						'slug'       => 'vk-blocks/vk-blocks.php',
+						'image_file' => 'vk-blocks_bnr_en.jpg',
+						'link_url'   => 'https://vk-blocks.com/?rel=vkadmin',
+						'alt'        => 'VK Blocks & VK Blocks Pro',
+						'language'   => 'en',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '<a href="https://vk-blocks.com/?rel=vkadmin" target="_blank" class="admin_banner"><img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/vk-blocks_bnr_en.jpg" alt="VK Blocks &amp; VK Blocks Pro" /></a>',
+			),
+			array(
+				'test_condition_name' => 'javascript: のリンク・引用符を含む画像ファイル名・タグを含む代替テキスト => リンクは空になり、画像の URL と代替テキストは属性の外に出ない',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'plugin',
+						'slug'       => 'vk-admin-test/vk-admin-test.php',
+						'image_file' => '" onerror="alert(2)',
+						'link_url'   => 'javascript:alert(1)',
+						'alt'        => '"><script>alert(3)</script>',
+						'language'   => 'en',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '<a href="" target="_blank" class="admin_banner"><img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/%20onerror=alert(2)" alt="&quot;&gt;&lt;script&gt;alert(3)&lt;/script&gt;" /></a>',
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			// サイトの言語を設定する.
+			/**
+			 * このケースのサイトの言語を返す.
+			 *
+			 * @return string サイトの言語.
+			 */
+			$locale_filter = function () use ( $case ) {
+				return $case['conditions']['locale'];
+			};
+			add_filter( 'locale', $locale_filter );
+
+			// 外部の JSON の内容を、バナー 1 件だけの一覧にする.
+			WP_Filesystem_Vk_Admin_Test::$contents = array(
+				'https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/vk-admin-banners.json' => wp_json_encode( array( $case['conditions']['product'] ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ),
+			);
+
+			// バナーの HTML から、バナーを並べる部分を取り出す.
+			preg_match( '#<div class="vk-admin-banner-grid">(.*?)</div>#s', VkAdmin::get_admin_banner(), $matches );
+			$actual = isset( $matches[1] ) ? $matches[1] : null;
+
+			$this->assertSame( $case['expected'], $actual, $case['test_condition_name'] );
+
+			remove_filter( 'locale', $locale_filter );
+		}
+	}
+
+	/**
+	 * 記事一覧の JavaScript get_posts_from_rest_api_js() が、記事を取得する URL を JavaScript の文字列として出力するかを確かめる.
+	 */
+	public function test_get_posts_from_rest_api_js() {
+		$test_cases = array(
+			array(
+				'test_condition_name' => 'お知らせの REST API の URL => 同じ URL が JavaScript の文字列として出力される',
+				'conditions'          => array(
+					'url' => 'https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3',
+				),
+				'expected'            => '"https:\/\/vektor-inc.co.jp\/wp-json\/wp\/v2\/info\/?per_page=3"',
+			),
+			array(
+				'test_condition_name' => '& で複数のパラメーターをつなぐブログの REST API の URL => & のまま出力される',
+				'conditions'          => array(
+					'url' => 'https://www.vektor-inc.co.jp/wp-json/wp/v2/posts/?categories=55&per_page=3',
+				),
+				'expected'            => '"https:\/\/www.vektor-inc.co.jp\/wp-json\/wp\/v2\/posts\/?categories=55&per_page=3"',
+			),
+			array(
+				'test_condition_name' => '引用符と script の終了タグを含む URL => 引用符・山括弧が除かれ、文字列の外に出ない',
+				'conditions'          => array(
+					'url' => 'https://example.com/?a=");alert(1);//</script>',
+				),
+				'expected'            => '"https:\/\/example.com\/?a=);alert(1):\/\/\/script"',
+			),
+			array(
+				'test_condition_name' => 'javascript: の URL => 空の文字列が出力される',
+				'conditions'          => array(
+					'url' => 'javascript:alert(2)',
+				),
+				'expected'            => '""',
+			),
+		);
+
+		foreach ( $test_cases as $case ) {
+			// JavaScript を出力して取り込む.
+			ob_start();
+			VkAdmin::get_posts_from_rest_api_js( $case['conditions']['url'], 'vk-wp-info' );
+			$js = ob_get_clean();
+
+			// $.getJSON() に渡している URL の部分を取り出す.
+			preg_match( '#\$\.getJSON\(\s*(.*?),\s*\n#', $js, $matches );
+			$actual = isset( $matches[1] ) ? $matches[1] : null;
+
+			$this->assertSame( $case['expected'], $actual, $case['test_condition_name'] );
+		}
+	}
+
+	/**
 	 * 共通フレーム admin_page_frame() が、ロゴ・左メニューの正当なマークアップを残し、危険なタグ・属性を除いて出力するかを確かめる.
 	 */
 	public function test_admin_page_frame() {
