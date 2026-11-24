@@ -25,6 +25,8 @@ VkAdmin::init();
 
 ## Change log
 
+[ Security Fix ] Unsafe tags and attributes are now removed from the logo and the left navigation menu on the admin settings pages.
+
 [ Dev Environment ] Updated Node.js for development (Volta) from 18.13.0 to 24.22.1.
 
 [ Dev Environment ] Removed the Volta setting from package.json and moved the Node.js version for development to .node-version.
