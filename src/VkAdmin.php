@@ -422,11 +422,24 @@ class VkAdmin {
 	/*
 	admin _ page_frame
 	/*--------------------------------------------------*/
+	/**
+	 * 管理画面の設定ページの共通フレーム（ロゴ・ページタイトル・左メニュー・本文・右サイドバー）を出力する。
+	 *
+	 * ページタイトル・ロゴ・左メニューは HTML を受け取るため、wp_kses_post() で投稿本文と同じ許可タグ・属性だけを残して出力する。
+	 * esc_html() にするとタグが文字として表示され、ロゴ画像やメニューのリンクが壊れるため使わない。
+	 *
+	 * @param string   $get_page_title    ページタイトル（HTML 可）。空のときは見出しを出力しない.
+	 * @param callable $the_body_callback 本文エリアを出力するコールバック.
+	 * @param string   $get_logo_html     ロゴ部分の HTML.
+	 * @param string   $get_menu_html     左メニューの HTML（`<li>` 要素の並び）。column_3 のときだけ出力する.
+	 * @param string   $get_layout        レイアウト（'column_3' または 'column_2'）.
+	 * @return void
+	 */
 	public static function admin_page_frame( $get_page_title, $the_body_callback, $get_logo_html = '', $get_menu_html = '', $get_layout = 'column_3' ) {
 		?>
 		<div class="wrap vk_admin_page">
 			<?php if ( $get_layout == 'column_2' ) : ?>
-				<div class="pageLogo"><?php echo $get_logo_html; ?></div>
+				<div class="pageLogo"><?php echo wp_kses_post( $get_logo_html ); ?></div>
 				<?php if ( $get_page_title ) : ?>
 					<h1 class="page_title"><?php echo wp_kses_post( $get_page_title ); ?></h1>
 				<?php endif; ?>
@@ -453,13 +466,13 @@ class VkAdmin {
 					<?php if ( $get_layout == 'column_3' ) : ?>
 						<div id="adminContent_sub" class="scrTracking adminMain_sub">
 							<div class="adminMain_sub_inner">
-								<div class="pageLogo"><?php echo $get_logo_html; ?></div>
+								<div class="pageLogo"><?php echo wp_kses_post( $get_logo_html ); ?></div>
 								<?php if ( $get_page_title ) : ?>
 								<h2 class="page_title"><?php echo wp_kses_post( $get_page_title ); ?></h2>
 								<?php endif; ?>
 								<div class="vk_option_nav">
 									<ul>
-									<?php echo $get_menu_html; ?>
+									<?php echo wp_kses_post( $get_menu_html ); ?>
 									</ul>
 								</div>
 							</div>

@@ -5,6 +5,7 @@
 	"main": "gulpfile.js",
 	"scripts": {
 		"build": "gulp sass",
+		"phpunit": "composer install && npx @wordpress/env run tests-cli --env-cwd='wp-content/plugins/vk-admin' vendor/bin/phpunit -c phpunit.xml.dist --do-not-cache-result",
 		"update": "ncu -u && rm -rf node_moduke packagi-lock.json && npm install"
 	},
 	"repository": {
