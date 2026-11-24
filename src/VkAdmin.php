@@ -124,6 +124,7 @@ class VkAdmin {
 	 * 管理画面に表示するバナーの HTML を返す。
 	 *
 	 * バナーの一覧は vk-admin-banners リポジトリの JSON から取得し、リンク先・画像の URL・代替テキストはエスケープしてから HTML に入れる。
+	 * リンク先・画像ファイル名・代替テキストのいずれかが文字列でないバナーは出力しない。
 	 *
 	 * @return string バナーの HTML（vk_admin_banner_html フィルターを通した値）.
 	 */
@@ -199,6 +200,11 @@ class VkAdmin {
 					if ( ! self::theme_exists( $product['slug'] ) ) {
 						if ( $lang === $product['language'] ) {
 
+							// リンク先・画像ファイル名・代替テキストが文字列でないバナーは読み飛ばす.
+							if ( ! is_string( $product['link_url'] ) || ! is_string( $product['image_file'] ) || ! is_string( $product['alt'] ) ) {
+								continue;
+							}
+
 							// プラグインの検索結果に飛ばす場合 URL を変換する必要がある
 							$product_url = true === $product['admin_url'] ? admin_url( $product['link_url'] ) : $product['link_url'];
 
@@ -213,6 +219,11 @@ class VkAdmin {
 				if ( 'plugin' === $product['type'] ) {
 					if ( ! self::plugin_exists( $product['slug'] ) ) {
 						if ( $lang === $product['language'] ) {
+
+							// リンク先・画像ファイル名・代替テキストが文字列でないバナーは読み飛ばす.
+							if ( ! is_string( $product['link_url'] ) || ! is_string( $product['image_file'] ) || ! is_string( $product['alt'] ) ) {
+								continue;
+							}
 
 							// プラグインの検索結果に飛ばす場合 URL を変換する必要がある
 							$product_url = true === $product['admin_url'] ? admin_url( $product['link_url'] ) : $product['link_url'];
@@ -324,7 +335,7 @@ class VkAdmin {
 				// 日付のデータを取得
 				var date = new Date(item.date_gmt);
 				var formate_date = date.toLocaleDateString();
-				// タイトルを HTML として解釈させないよう、文字参照（&#8211; など）だけを文字に戻して文字列として扱う
+				// タイトルは、文字参照（&#8211; など）を文字に戻し、タグは取り除いて文字だけを扱う
 				var title = new DOMParser().parseFromString( item.title.rendered, 'text/html' ).documentElement.textContent;
 				// JSONの内容の要素を</ul>の前に出力する
 				var $listItem = $( '<li>' );
@@ -332,7 +343,7 @@ class VkAdmin {
 				$listItem.append( $( '<span class="date">' ).text( formate_date ) );
 				<?php } ?>
 				$listItem.append( $( '<a target="_blank">' ).attr( 'href', item.link + '?rel=vkadmin' ).text( title ) );
-				$("ul#<?php echo esc_attr( $target_id ); ?>").append( $listItem );
+				$(<?php echo wp_json_encode( 'ul#' . $target_id ); ?>).append( $listItem );
 			});
 		});
 		<?php

@@ -66,7 +66,7 @@ class VkAdminTest extends WP_UnitTestCase {
 					'locale'  => 'en_US',
 					'product' => array(
 						'type'       => 'plugin',
-						'slug'       => 'vk-filter-search-pro-global-edition/vk-filter-search-pro-global-edition.php',
+						'slug'       => 'vk-admin-test-plugin/vk-admin-test-plugin.php',
 						'image_file' => 'ad_banner-vk-filter-search-pro-en.jpg',
 						'link_url'   => 'https://vk-filter-search.com/?rel=vkadmin',
 						'alt'        => 'VK Filter Search Pro Global Edition',
@@ -82,7 +82,7 @@ class VkAdminTest extends WP_UnitTestCase {
 					'locale'  => 'en_US',
 					'product' => array(
 						'type'       => 'theme',
-						'slug'       => 'lightning/style.css',
+						'slug'       => 'vk-admin-test-theme/style.css',
 						'image_file' => 'lightning_bnr_en.jpg',
 						'link_url'   => 'https://lightning.nagoya/?rel=vkadmin',
 						'alt'        => 'Lightning',
@@ -98,7 +98,7 @@ class VkAdminTest extends WP_UnitTestCase {
 					'locale'  => 'ja',
 					'product' => array(
 						'type'       => 'plugin',
-						'slug'       => 'vektor-passport/vektor-passport.php',
+						'slug'       => 'vk-admin-test-plugin/vk-admin-test-plugin.php',
 						'image_file' => 'ad_banner-vektor-passport-ja.jpg',
 						'link_url'   => 'https://vws.vektor-inc.co.jp/vektor-passport?rel=vkadmin',
 						'alt'        => 'ベクトルパスポート',
@@ -114,7 +114,7 @@ class VkAdminTest extends WP_UnitTestCase {
 					'locale'  => 'en_US',
 					'product' => array(
 						'type'       => 'plugin',
-						'slug'       => 'vk-block-patterns/vk-block-patterns.php',
+						'slug'       => 'vk-admin-test-plugin/vk-admin-test-plugin.php',
 						'image_file' => 'vk-block-patterns_bnr_en.jpg',
 						'link_url'   => 'plugin-install.php?s=vk+block+patterns&tab=search&type=term',
 						'alt'        => 'VK Block Patterns',
@@ -130,7 +130,7 @@ class VkAdminTest extends WP_UnitTestCase {
 					'locale'  => 'en_US',
 					'product' => array(
 						'type'       => 'plugin',
-						'slug'       => 'vk-blocks/vk-blocks.php',
+						'slug'       => 'vk-admin-test-plugin/vk-admin-test-plugin.php',
 						'image_file' => 'vk-blocks_bnr_en.jpg',
 						'link_url'   => 'https://vk-blocks.com/?rel=vkadmin',
 						'alt'        => 'VK Blocks & VK Blocks Pro',
@@ -146,7 +146,7 @@ class VkAdminTest extends WP_UnitTestCase {
 					'locale'  => 'en_US',
 					'product' => array(
 						'type'       => 'plugin',
-						'slug'       => 'vk-admin-test/vk-admin-test.php',
+						'slug'       => 'vk-admin-test-plugin/vk-admin-test-plugin.php',
 						'image_file' => '" onerror="alert(2)',
 						'link_url'   => 'javascript:alert(1)',
 						'alt'        => '"><script>alert(3)</script>',
@@ -155,6 +155,54 @@ class VkAdminTest extends WP_UnitTestCase {
 					),
 				),
 				'expected'            => '<a href="" target="_blank" class="admin_banner"><img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/%20onerror=alert(2)" alt="&quot;&gt;&lt;script&gt;alert(3)&lt;/script&gt;" /></a>',
+			),
+			array(
+				'test_condition_name' => 'テーマのバナーで、リンク先が文字列でない（配列） => 読み飛ばされ、何も出力されない',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'theme',
+						'slug'       => 'vk-admin-test-theme/style.css',
+						'image_file' => 'lightning_bnr_en.jpg',
+						'link_url'   => array( 'https://lightning.nagoya/?rel=vkadmin' ),
+						'alt'        => 'Lightning',
+						'language'   => 'en',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '',
+			),
+			array(
+				'test_condition_name' => 'プラグインのバナーで、画像ファイル名が文字列でない（null） => 読み飛ばされ、何も出力されない',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'plugin',
+						'slug'       => 'vk-admin-test-plugin/vk-admin-test-plugin.php',
+						'image_file' => null,
+						'link_url'   => 'https://vk-filter-search.com/?rel=vkadmin',
+						'alt'        => 'VK Filter Search Pro Global Edition',
+						'language'   => 'en',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '',
+			),
+			array(
+				'test_condition_name' => 'プラグインのバナーで、代替テキストが文字列でない（数値） => 読み飛ばされ、何も出力されない',
+				'conditions'          => array(
+					'locale'  => 'en_US',
+					'product' => array(
+						'type'       => 'plugin',
+						'slug'       => 'vk-admin-test-plugin/vk-admin-test-plugin.php',
+						'image_file' => 'ad_banner-vk-filter-search-pro-en.jpg',
+						'link_url'   => 'https://vk-filter-search.com/?rel=vkadmin',
+						'alt'        => 123,
+						'language'   => 'en',
+						'admin_url'  => false,
+					),
+				),
+				'expected'            => '',
 			),
 		);
 
@@ -186,49 +234,80 @@ class VkAdminTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * 記事一覧の JavaScript get_posts_from_rest_api_js() が、記事を取得する URL を JavaScript の文字列として出力するかを確かめる.
+	 * 記事一覧の JavaScript get_posts_from_rest_api_js() が、記事を取得する URL と追加先のリストのセレクターを JavaScript の文字列として出力するかを確かめる.
 	 */
 	public function test_get_posts_from_rest_api_js() {
 		$test_cases = array(
 			array(
-				'test_condition_name' => 'お知らせの REST API の URL => 同じ URL が JavaScript の文字列として出力される',
+				'test_condition_name' => 'お知らせの REST API の URL => 同じ URL とセレクターが JavaScript の文字列として出力される',
 				'conditions'          => array(
-					'url' => 'https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3',
+					'url'       => 'https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3',
+					'target_id' => 'vk-wp-info',
 				),
-				'expected'            => '"https:\/\/vektor-inc.co.jp\/wp-json\/wp\/v2\/info\/?per_page=3"',
+				'expected'            => array(
+					'url'      => '"https:\/\/vektor-inc.co.jp\/wp-json\/wp\/v2\/info\/?per_page=3"',
+					'selector' => '"ul#vk-wp-info"',
+				),
 			),
 			array(
 				'test_condition_name' => '& で複数のパラメーターをつなぐブログの REST API の URL => & のまま出力される',
 				'conditions'          => array(
-					'url' => 'https://www.vektor-inc.co.jp/wp-json/wp/v2/posts/?categories=55&per_page=3',
+					'url'       => 'https://www.vektor-inc.co.jp/wp-json/wp/v2/posts/?categories=55&per_page=3',
+					'target_id' => 'vk-wp-blog',
 				),
-				'expected'            => '"https:\/\/www.vektor-inc.co.jp\/wp-json\/wp\/v2\/posts\/?categories=55&per_page=3"',
+				'expected'            => array(
+					'url'      => '"https:\/\/www.vektor-inc.co.jp\/wp-json\/wp\/v2\/posts\/?categories=55&per_page=3"',
+					'selector' => '"ul#vk-wp-blog"',
+				),
 			),
 			array(
 				'test_condition_name' => '引用符と script の終了タグを含む URL => 引用符・山括弧が除かれ、文字列の外に出ない',
 				'conditions'          => array(
-					'url' => 'https://example.com/?a=");alert(1);//</script>',
+					'url'       => 'https://example.com/?a=");alert(1);//</script>',
+					'target_id' => 'vk-wp-info',
 				),
-				'expected'            => '"https:\/\/example.com\/?a=);alert(1):\/\/\/script"',
+				'expected'            => array(
+					'url'      => '"https:\/\/example.com\/?a=);alert(1):\/\/\/script"',
+					'selector' => '"ul#vk-wp-info"',
+				),
 			),
 			array(
 				'test_condition_name' => 'javascript: の URL => 空の文字列が出力される',
 				'conditions'          => array(
-					'url' => 'javascript:alert(2)',
+					'url'       => 'javascript:alert(2)',
+					'target_id' => 'vk-wp-info',
 				),
-				'expected'            => '""',
+				'expected'            => array(
+					'url'      => '""',
+					'selector' => '"ul#vk-wp-info"',
+				),
+			),
+			array(
+				'test_condition_name' => '引用符と script の終了タグを含むリストの id => 引用符と / がエスケープされ、文字列の外に出ない',
+				'conditions'          => array(
+					'url'       => 'https://vektor-inc.co.jp/wp-json/wp/v2/info/?per_page=3',
+					'target_id' => 'vk-wp-info");alert(3);</script>',
+				),
+				'expected'            => array(
+					'url'      => '"https:\/\/vektor-inc.co.jp\/wp-json\/wp\/v2\/info\/?per_page=3"',
+					'selector' => '"ul#vk-wp-info\");alert(3);<\/script>"',
+				),
 			),
 		);
 
 		foreach ( $test_cases as $case ) {
 			// JavaScript を出力して取り込む.
 			ob_start();
-			VkAdmin::get_posts_from_rest_api_js( $case['conditions']['url'], 'vk-wp-info' );
+			VkAdmin::get_posts_from_rest_api_js( $case['conditions']['url'], $case['conditions']['target_id'] );
 			$js = ob_get_clean();
 
-			// $.getJSON() に渡している URL の部分を取り出す.
-			preg_match( '#\$\.getJSON\(\s*(.*?),\s*\n#', $js, $matches );
-			$actual = isset( $matches[1] ) ? $matches[1] : null;
+			// $.getJSON() に渡している URL の部分と、記事を追加するリストのセレクターの部分を取り出す.
+			preg_match( '#\$\.getJSON\(\s*(.*?),\s*\n#', $js, $url_matches );
+			preg_match( '#\$\((.*?)\)\.append\( \$listItem \);#', $js, $selector_matches );
+			$actual = array(
+				'url'      => isset( $url_matches[1] ) ? $url_matches[1] : null,
+				'selector' => isset( $selector_matches[1] ) ? $selector_matches[1] : null,
+			);
 
 			$this->assertSame( $case['expected'], $actual, $case['test_condition_name'] );
 		}
