@@ -31,6 +31,8 @@ VkAdmin::init();
 
 [ Dev Environment ] Removed the Volta setting from package.json and moved the Node.js version for development to .node-version.
 
+[ Dev Environment ] Added a PHPUnit test environment (`npm run phpunit`).
+
 == 0.8.1 ==
 [ Bug Fix ] Fixed admin CSS/JS not refreshing in the browser after an update because of a stale asset cache-busting version.
 
