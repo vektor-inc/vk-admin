@@ -1,0 +1,25 @@
+# 配布物（composer の dist（zip）や git archive）に含めない、開発用のファイル。
+# export-ignore は取り込み時のアーカイブにだけ効き、リポジトリ自体（作業ツリー）のファイルは消えない。
+# 製品の動作に必要な src/・config.php・composer.json と、配布に必要な LICENSE は含める。
+
+# テスト
+/tests export-ignore
+/phpunit.xml.dist export-ignore
+
+# 開発環境・CI・コード検査の設定
+/.github export-ignore
+/.phpcs.xml export-ignore
+/.wp-env.json export-ignore
+/.node-version export-ignore
+
+# ビルド用（src/assets/_scss から src/assets/css を作る gulp。ビルド済みの css は src/ に含まれる）
+/gulpfile.js export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+
+# composer の開発用ロックファイル（ライブラリとして取り込まれるときは使われない）
+/composer.lock export-ignore
+
+# Git の設定
+/.gitignore export-ignore
+/.gitattributes export-ignore

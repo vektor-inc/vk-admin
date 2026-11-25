@@ -26,6 +26,7 @@ VkAdmin::init();
 ## Change log
 
 [ Dev Environment ] Added `.wp-env.override.json` to .gitignore so that a local wp-env port setting is not committed by mistake.
+[ Dev Environment ] Excluded development files (tests, PHPUnit and CI settings, build tools) from the composer package with `.gitattributes`, so they are no longer copied into products that install vk-admin.
 
 == 0.8.2 ==
 [ Security Fix ] Unsafe tags and attributes are now removed from the logo and the left navigation menu on the admin settings pages.
