@@ -25,7 +25,7 @@
 		"gulp-merge-media-queries": "^0.2.1",
 		"gulp-plumber": "^1.2.1",
 		"gulp-sass": "^5.1.0",
-		"npm-check-updates": "^16.10.8",
+		"npm-check-updates": "^23.1.1",
 		"sass": "^1.62.0"
 	}
 }
