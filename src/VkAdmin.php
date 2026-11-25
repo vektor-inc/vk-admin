@@ -120,6 +120,14 @@ class VkAdmin {
 	/*
 	get_admin_banner
 	/*--------------------------------------------------*/
+	/**
+	 * 管理画面に表示するバナーの HTML を返す。
+	 *
+	 * バナーの一覧は vk-admin-banners リポジトリの JSON から取得し、リンク先・画像の URL・代替テキストはエスケープしてから HTML に入れる。
+	 * リンク先・画像ファイル名・代替テキストのいずれかが文字列でないバナーは出力しない。
+	 *
+	 * @return string バナーの HTML（vk_admin_banner_html フィルターを通した値）.
+	 */
 	public static function get_admin_banner() {
 		$banner_html = '';
 		$dir_url     = plugin_dir_url( __FILE__ );
@@ -192,12 +200,17 @@ class VkAdmin {
 					if ( ! self::theme_exists( $product['slug'] ) ) {
 						if ( $lang === $product['language'] ) {
 
+							// リンク先・画像ファイル名・代替テキストが文字列でないバナーは読み飛ばす.
+							if ( ! is_string( $product['link_url'] ) || ! is_string( $product['image_file'] ) || ! is_string( $product['alt'] ) ) {
+								continue;
+							}
+
 							// プラグインの検索結果に飛ばす場合 URL を変換する必要がある
 							$product_url = true === $product['admin_url'] ? admin_url( $product['link_url'] ) : $product['link_url'];
 
 							// バナーを追加
-							$banner_html .= '<a href="' . $product_url . '" target="_blank" class="admin_banner">';
-							$banner_html .= '<img src="' . $img_base_url . $product['image_file'] . '" alt="' . $product['alt'] . '" />';
+							$banner_html .= '<a href="' . esc_url( $product_url ) . '" target="_blank" class="admin_banner">';
+							$banner_html .= '<img src="' . esc_url( $img_base_url . $product['image_file'] ) . '" alt="' . esc_attr( $product['alt'] ) . '" />';
 							$banner_html .= '</a>';
 						}
 					}
@@ -207,12 +220,17 @@ class VkAdmin {
 					if ( ! self::plugin_exists( $product['slug'] ) ) {
 						if ( $lang === $product['language'] ) {
 
+							// リンク先・画像ファイル名・代替テキストが文字列でないバナーは読み飛ばす.
+							if ( ! is_string( $product['link_url'] ) || ! is_string( $product['image_file'] ) || ! is_string( $product['alt'] ) ) {
+								continue;
+							}
+
 							// プラグインの検索結果に飛ばす場合 URL を変換する必要がある
 							$product_url = true === $product['admin_url'] ? admin_url( $product['link_url'] ) : $product['link_url'];
 
 							// バナーを追加
-							$banner_html .= '<a href="' . $product_url . '" target="_blank" class="admin_banner">';
-							$banner_html .= '<img src="' . $img_base_url . $product['image_file'] . '" alt="' . $product['alt'] . '" />';
+							$banner_html .= '<a href="' . esc_url( $product_url ) . '" target="_blank" class="admin_banner">';
+							$banner_html .= '<img src="' . esc_url( $img_base_url . $product['image_file'] ) . '" alt="' . esc_attr( $product['alt'] ) . '" />';
 							$banner_html .= '</a>';
 						}
 					}
@@ -293,17 +311,39 @@ class VkAdmin {
 		<?php
 	}
 
+	/**
+	 * REST API から記事を取得し、指定したリストに記事へのリンクを追加する JavaScript を出力する。
+	 *
+	 * 呼び出し元は load_rest_api_js() で、その script 要素の中に出力する。
+	 * 取得した記事のリンク先とタイトルは、HTML として解釈させず、要素の属性と文字列として追加する。
+	 *
+	 * @param string $url       記事を取得する REST API の URL.
+	 * @param string $target_id 記事を追加する ul 要素の id.
+	 * @param bool   $data      日付を表示するかどうか.
+	 * @return void
+	 */
 	public static function get_posts_from_rest_api_js( $url, $target_id, $data = true ) {
 		?>
-		$.getJSON( "<?php echo $url ;?>",
+		$.getJSON( <?php echo wp_json_encode( esc_url_raw( $url ) ); ?>,
 		function(results) {
 			// 取得したJSONの内容をループする
 			$.each(results, function(i, item) {
+				// リンク先が http・https 以外の記事は追加しない
+				if ( ! /^https?:\/\//i.test( item.link ) ) {
+					return;
+				}
 				// 日付のデータを取得
 				var date = new Date(item.date_gmt);
 				var formate_date = date.toLocaleDateString();
+				// タイトルは、文字参照（&#8211; など）を文字に戻し、タグは取り除いて文字だけを扱う
+				var title = new DOMParser().parseFromString( item.title.rendered, 'text/html' ).documentElement.textContent;
 				// JSONの内容の要素を</ul>の前に出力する
-				$("ul#<?php echo esc_attr( $target_id ); ?>").append('<li><?php if ( $data ) { ?><span class="date">'+ formate_date +'</span><?php } ?><a href="' + item.link + '?rel=vkadmin" target="_blank">' + item.title.rendered + '</a></li>');
+				var $listItem = $( '<li>' );
+				<?php if ( $data ) { ?>
+				$listItem.append( $( '<span class="date">' ).text( formate_date ) );
+				<?php } ?>
+				$listItem.append( $( '<a target="_blank">' ).attr( 'href', item.link + '?rel=vkadmin' ).text( title ) );
+				$(<?php echo wp_json_encode( 'ul#' . $target_id ); ?>).append( $listItem );
 			});
 		});
 		<?php
