@@ -25,6 +25,7 @@ VkAdmin::init();
 
 ## Change log
 
+== 0.8.2 ==
 [ Security Fix ] Unsafe tags and attributes are now removed from the logo and the left navigation menu on the admin settings pages.
 
 [ Security Fix ] The banners and news lists loaded from external sources on the dashboard widget and the admin settings pages are now escaped before output.
