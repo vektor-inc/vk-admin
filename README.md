@@ -27,18 +27,13 @@ VkAdmin::init();
 
 == 0.8.2 ==
 [ Security Fix ] Unsafe tags and attributes are now removed from the logo and the left navigation menu on the admin settings pages.
-
 [ Security Fix ] The banners and news lists loaded from external sources on the dashboard widget and the admin settings pages are now escaped before output.
-
 [ Dev Environment ] Updated Node.js for development (Volta) from 18.13.0 to 24.22.1.
-
 [ Dev Environment ] Removed the Volta setting from package.json and moved the Node.js version for development to .node-version.
-
 [ Dev Environment ] Added a PHPUnit test environment (`npm run phpunit`).
 
 == 0.8.1 ==
 [ Bug Fix ] Fixed admin CSS/JS not refreshing in the browser after an update because of a stale asset cache-busting version.
-
 [ Bug Fix ] Fixed the settings page left sidebar navigation being pushed off-screen and unreachable when admin notices appeared, by showing notices at the top of the page (main area) instead.
 
 == 0.8.0 ==
