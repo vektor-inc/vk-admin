@@ -39,7 +39,7 @@ class VkAdminTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * バナー get_admin_banner() が、外部の JSON から取得したリンク先・画像の URL・代替テキストをエスケープして出力するかを確かめる.
+	 * バナー get_admin_banner() が、外部の JSON から取得したリンク先・画像の URL・代替テキストをエスケープして出力するかと、末尾のロゴが 2026 年版の画像を指すかを確かめる.
 	 */
 	public function test_get_admin_banner() {
 		// 外部の JSON の代わりに、テストで用意した内容を返すファイルシステムを使う.
@@ -206,6 +206,9 @@ class VkAdminTest extends WP_UnitTestCase {
 			),
 		);
 
+		// 外部の JSON の内容にかかわらず、バナーの末尾に出すロゴは 2026 年版の画像を指す.
+		$expected_logo = '<img src="https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/images/vektor_logo-2026.png" alt="Vektor,Inc." />';
+
 		foreach ( $test_cases as $case ) {
 			// サイトの言語を設定する.
 			/**
@@ -223,11 +226,19 @@ class VkAdminTest extends WP_UnitTestCase {
 				'https://raw.githubusercontent.com/vektor-inc/vk-admin-banners/main/vk-admin-banners.json' => wp_json_encode( array( $case['conditions']['product'] ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ),
 			);
 
+			$banner_html = VkAdmin::get_admin_banner();
+
 			// バナーの HTML から、バナーを並べる部分を取り出す.
-			preg_match( '#<div class="vk-admin-banner-grid">(.*?)</div>#s', VkAdmin::get_admin_banner(), $matches );
+			preg_match( '#<div class="vk-admin-banner-grid">(.*?)</div>#s', $banner_html, $matches );
 			$actual = isset( $matches[1] ) ? $matches[1] : null;
 
 			$this->assertSame( $case['expected'], $actual, $case['test_condition_name'] );
+
+			// バナーの HTML から、末尾のロゴの画像を取り出す.
+			preg_match( '#<a [^>]*class="vektor_logo"[^>]*>(<img [^>]*/>)</a>#', $banner_html, $logo_matches );
+			$actual_logo = isset( $logo_matches[1] ) ? $logo_matches[1] : null;
+
+			$this->assertSame( $expected_logo, $actual_logo, '[ロゴ] ' . $case['test_condition_name'] );
 
 			remove_filter( 'locale', $locale_filter );
 		}
