@@ -25,6 +25,7 @@ VkAdmin::init();
 
 ## Change log
 
+== 0.8.3 ==
 [ Spec Change ] The Vektor,Inc. logo shown at the bottom of the banners on the dashboard widget and the admin settings pages now uses the new logo image.
 [ Dev Environment ] Added `.wp-env.override.json` to .gitignore so that a local wp-env port setting is not committed by mistake.
 [ Dev Environment ] Excluded development files (tests, PHPUnit and CI settings, build tools) from the composer package with `.gitattributes`, so they are no longer copied into products that install vk-admin.

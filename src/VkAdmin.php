@@ -5,14 +5,14 @@
  * @package vektor-inc/vk-admin
  * @license GPL-2.0+
  *
- * @version 0.8.2
+ * @version 0.8.3
  */
 
 namespace VektorInc\VK_Admin;
 
 class VkAdmin {
 
-	public static $version = '0.8.2';
+	public static $version = '0.8.3';
 
 	public static function init() {
 		$locale = ( is_admin() && function_exists( 'get_user_locale' ) ) ? get_user_locale() : get_locale();
